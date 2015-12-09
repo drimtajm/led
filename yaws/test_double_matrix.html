@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title id='Description'>jqxDraw - Basic shapes drawing example</title>
+    <link rel="stylesheet" href="jqwidgets/styles/jqx.base.css" type="text/css" />
+    <script type="text/javascript" src="scripts/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="jqwidgets/jqxcore.js"></script>
+    <script type="text/javascript" src="jqwidgets/jqxdraw.js"></script>
+    <script type="text/javascript" src="jqwidgets/jqxtooltip.js"></script>
+    <script type="text/javascript" src="jqwidgets/jqxtextarea.js"></script>
+    <script type="text/javascript" src="jqwidgets/jqxbuttons.js"></script>
+    <script type="text/javascript" src="jqwidgets/jqxscrollbar.js"></script>
+    <style type="text/css">
+    .smallText
+    {
+        font-size:40px;
+        font-family: Sans-Serif;
+    }
+    .largeText
+    {
+        font-size:36px;
+        font-family: Sans-Serif;
+    }
+    </style>
+    <script type="text/javascript">
+		var CELL_SIZE = 40;
+		var RADIUS = CELL_SIZE/2 - 2;
+		var LEFT_MARGIN = 30;
+		var TOP_MARGIN = 30;
+		//var COLORS = [ '#f0f0f0', '#FF6B70', '#6BFF97', '#FFBB2B' ];
+		var COLORS = [ '#f0f0f0', '#FF6B70']
+		var circleColors = {};
+		var circleElements = {};
+
+        function submit_code() {
+            var code = $('#jqxTextArea').jqxTextArea('val')
+            $.post("code.yaws", $('#form').serialize(), function( data ) {
+                //alert(data)
+                },
+                "html");
+        }
+
+	function shutdown_matrix() {
+	    $.post("code.yaws", "close", null,
+		//function( data ) {
+                //alert(data)
+                //},
+		"html");
+	}
+
+		function initCircles() {
+			for (var x = 0; x < 16; x++) {
+				for (var y = 0; y < 8; y++) {
+					var elementId = colId(x)+ rowId(y);
+					circleColors[elementId] = (x + y) % (COLORS.length);
+				}
+			}
+		}
+		
+		function createProgram(picture) {
+			var pgm = "Bild1 = ["
+			var addComma = false
+			for (var id in circleColors) {
+				if (circleColors[id] != 0) {
+					if (addComma) pgm += ", ";
+					//pgm += "{\"" + id + "\"," + circleColors[id] + "}";
+					pgm += "\"" + id + "\"";
+					addComma = true;
+				}
+			}
+			pgm += "], Visa(Bild1)."
+			return pgm
+		}
+
+		function updateAllCircles(renderer) {
+			for (var id in circleElements) {
+				var col = circleColors[elementId];
+				var element = circleElements[elementId]
+				renderer.attr(element, { fill: COLORS[col] });
+			}
+		}
+		
+		function changeColor(renderer, elementId) {
+			return function () {
+				var col = (circleColors[elementId] + 1) % COLORS.length;
+				circleColors[elementId] = col;
+				var element = circleElements[elementId]
+				renderer.attr(element, { fill: COLORS[col] });
+				$('#jqxTextArea').jqxTextArea('val', createProgram(circleColors));
+			}
+		}
+
+		function colId(col) {
+			return "ABCDEFGHIJKLMNOP".charAt(col);
+		}
+
+		function rowId(row) {
+			return "" + (row + 1);
+		}
+		 
+        $(document).ready(function () {
+			initCircles();
+            $('#container').jqxDraw();
+            $('#jqxTextArea').jqxTextArea({ placeHolder: "", minLength: 1});
+            $('#jqxTextArea').jqxTextArea('val', createProgram(circleColors));
+
+
+            var renderer = $('#container').jqxDraw('getInstance');
+            var size = renderer.getSize();
+            for (var x = 0; x < 16; x++) {
+				for (var y = 0; y < 8; y++) {
+					var elementId = colId(x)+ rowId(y)
+					var xpos = LEFT_MARGIN + CELL_SIZE/2 + x * CELL_SIZE
+					var ypos = TOP_MARGIN + CELL_SIZE/2 + y * CELL_SIZE
+					// params: cx, cy, radius, params
+					var circleElement = renderer.circle(xpos, 
+													    ypos, 
+														RADIUS, 
+														{ fill: COLORS[circleColors[elementId]], stroke: 'darkblue' });
+					circleElements[elementId] = circleElement
+					renderer.on(circleElement, 'click', changeColor(renderer, elementId));
+				}
+			}
+			for (var y = 0; y < 8; y++) {
+				// params: text, x, y, width, height, angle, params, clip, halign, valign, rotateAround
+				var ypos = TOP_MARGIN + y * CELL_SIZE
+				var xpos = LEFT_MARGIN + y * CELL_SIZE
+				renderer.text(rowId(y), 0, ypos, LEFT_MARGIN, CELL_SIZE, 0, {'class':'smallText' }, false, 'center', 'center', 'centermiddle');
+				renderer.text(colId(y), xpos, 0, CELL_SIZE, TOP_MARGIN, 0, {'class':'smallText' }, false, 'center', 'center', 'centermiddle');
+			}
+			for (var x = 8; x < 16; x++) {
+				var xpos = LEFT_MARGIN + x * CELL_SIZE
+				renderer.text(colId(x), xpos, 0, CELL_SIZE, TOP_MARGIN, 0, {'class':'smallText' }, false, 'center', 'center', 'centermiddle');
+			}
+            renderer.refresh();
+        });
+    </script>
+</head>
+<body class='default'>
+    <div id='container' style="width:800px; height:400px">
+    </div>
+    <form id="form">
+      <textarea name="code" id="jqxTextArea" style="height:80px; width:800px"></textarea>
+      <button type="button" onclick="submit_code()">Visa</button>
+      <button type="button" onclick="shutdown_matrix()">Avsluta</button>
+    </form>
+</body>
+</html>
