@@ -1,6 +1,7 @@
+
 -module(double_matrix).
 
--export([go/0, display/1]).
+-export([go/0, display/1, animate/1, init/0]).
 
 -define(CE_PIN, 24).
 
@@ -18,6 +19,17 @@ spi_write(Handle, Register, Value1, Value2) ->
     spi_interface:transfer_spi_data(Handle, [Register, Value1,
 					     Register, Value2]).
 
+init() ->
+    {ok, Handle} = spi_interface:open_spi_bus(?CE_PIN),
+    init(Handle),
+    put(handle, Handle),
+    Zeros = lists:duplicate(8, 0),
+    display_chars(Handle, Zeros, Zeros).
+
+close() ->
+    Handle = get(handle),
+    io:format("Handle is now: ~w~n", [Handle]),
+    ok = spi_interface:close_spi_bus(Handle).
 
 init(Handle) ->
     spi_write(Handle, 16#9, 0),
@@ -41,7 +53,7 @@ convert_indeces_to_int(List) ->
 		end, 0, List).
 
 to_chars(List) ->
-    to_chars(lists:usort(List), [], [], 1).
+    to_chars(List, [], [], 1).
 
 to_chars(_List, ResultL, ResultR, 9) ->
     {lists:reverse(ResultL), lists:reverse(ResultR)};
@@ -70,8 +82,10 @@ handle_code(Code) ->
     %% Now parse the tokens into the abstract form
     {ok,ErlAbsForm}=erl_parse:parse_exprs(ErlTokens),
 
-    Bindings=erl_eval:add_binding('Visa',fun double_matrix:display/1,
-				  erl_eval:new_bindings()),
+    Bindings0=erl_eval:add_binding('Visa',fun double_matrix:display/1,
+				   erl_eval:new_bindings()),
+    Bindings=erl_eval:add_binding('Animera',fun double_matrix:animate/1,
+				  Bindings0),
     %% Now evaluate the string
     erl_eval:exprs(ErlAbsForm,Bindings),
     ok.
@@ -85,6 +99,24 @@ display(List) ->
     io:format("Handle: ~p, CharL: ~p, CharR: ~p~n", [Handle, CharL, CharR]),
     display_chars(get(handle), CharL, CharR),
     ok.
+
+animate([]) ->
+    ok;
+animate(List0) ->
+    List = sort_by_row(List0),
+    animate([hd(List)], tl(List)).
+
+sort_by_row(List) ->
+    lists:sort(fun ([_LetterX, DigitX], [_LetterY, DigitY]) ->
+		       DigitX =< DigitY
+	       end, List).
+
+animate(DisplayList, []) ->
+    display(DisplayList);
+animate(DisplayList, [First | Rest]) ->
+    display(DisplayList),
+    timer:sleep(5),
+    animate([First | DisplayList], Rest).
 
 receive_loop() ->
     Result =
@@ -122,5 +154,5 @@ go() ->
    %%timer:sleep(3500),
     Zeros = lists:duplicate(8, 0),
     display_chars(Handle, Zeros, Zeros),
-    ok = spi_interface:close_spi_bus(Handle),
+    close(),
     unregister(code_receiver).
