@@ -1,0 +1,2 @@
+copy led_matrix_software.sh to /etc/init.d and issue:
+update-rc.d led_matrix_software.sh defaults
