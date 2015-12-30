@@ -20,58 +20,9 @@
 		 
         $(document).ready(function () {
 			createTestImage(currentPicture);
-            $('#container').jqxDraw();
-            function updateMiniSelection() {
-                for (var index = 0; index < pictures.length; index++) {
-                    mid = '#mini' + index;
-                    var el = $(mid)
-                    color = 'white';
-                    if (pictures[index] == currentPicture) {
-                        color = 'green';
-                    }
-                    el.css('background-color', color);
-                }
-            }
-            
-            var main_up;
-            {
-                var renderer = $('#container').jqxDraw('getInstance');
-                circleElements = createMatrix(renderer, true);
-                addMouseHandlers(renderer, circleElements);
-                main_up = new ImageUpdater(renderer, circleElements);
-                main_up.refresh(currentPicture);
-                currentPicture.observe(main_up);
-                $('#container').on('mouseup', function (event) {
-                    $('#debug').text('mouseup')
-                    freeline = false;
-                });
-            }
+            initMain();
             for (var index = 0; index < pictures.length; index++) {
-                pic = pictures[index];
-                mid = 'mini' + index;
-                $('#minitures').append('<div id="' + mid + '"></div>');
-                $('#' + mid).css({'width' : '65px',
-                                  'height': '60px',
-                                  'display' : 'inline-block'
-                                 });
-                $('#' + mid).jqxDraw();
-                $('#' + mid).data('pic', pic);
-                var renderer2 = $('#' + mid).jqxDraw('getInstance');
-                var elems2 = createMatrix(renderer2, false);
-                var up = new ImageUpdater(renderer2, elems2);
-                up.refresh(pic);
-                pic.observe(up);
-                $('#' + mid).on('click', function () {
-                    currentPicture.unobserve(main_up);
-                    currentPicture.unobserve(progObserer);
-                    currentPicture = $(this).data('pic');
-                    main_up.refresh(currentPicture);
-                    currentPicture.observe(main_up);
-                    currentPicture.observe(progObserer);
-                    progObserer.refresh(currentPicture);
-                    updateMiniSelection();
-                })
-                
+                createNewMini(pictures[index]);
             }
             updateMiniSelection();
             /*
@@ -95,21 +46,26 @@
             $('#jqxTextArea').jqxTextArea({ placeHolder: "", minLength: 1});
             $('#jqxTextArea').jqxTextArea('val', createProgram(currentPicture));
             progObserer = new ProgramUpdater();
-            currentPicture.observe(progObserer);
-
-            $("#clearall").on('click', function () { clear_all(renderer)});
+            for (var index = 0; index < pictures.length; index++) {
+                pictures[index].observe(progObserer);
+            }
+            $("#clearall").on('click', clear_all);
+            $("#copy").on('click', clone_current_picture);
+            $("#delete").on('click', delete_current_picture);
         });
     </script>
 </head>
 <body class='default'>
     <!-- Color:<div id="toolbar"></div> -->
+    <div id='debug'>-</div>
     <div id='container' style="width:400px; height:400px"></div>
-    <div id='minitures' style="width:100%; height:60px"></div>
-    <div id='debug'></div>
+    <div id='minitures' style="width:100%; height:auto"></div>
+    <button id="clearall" type="button">Rensa</button>
+    <button id="copy" type="button">Kopiera</button>
+    <button id="delete" type="button">Ta bort</button>
     <div style="width:100%; display: inline-block">
         <form id="form">
-          <textarea name="code" id="jqxTextArea" style="height:100px; width:100%"></textarea>
-          <button id="clearall" type="button">Rensa</button>
+          <textarea name="code" id="jqxTextArea" style="height:200px; width:100%"></textarea>
           <button type="button" onclick="submit_code()">Visa</button>
           <button type="button" onclick="shutdown_matrix()">Avsluta</button>
         </form>

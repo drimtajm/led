@@ -10,7 +10,10 @@ function pixelId(col, row) {
     return colId(col) + rowId(row);
 }
 
+var nextPictureId = 1;
 function Picture() {
+    this.id = 'Bild' + nextPictureId;
+    nextPictureId ++;
     this.colors = {};
     this.listeners = [];
     this._clear();
@@ -56,6 +59,14 @@ Picture.prototype.setPixel = function (pid, value) {
 Picture.prototype.clear = function (pid, value) {
     this._clear();
     this.notify('ALL');
+}
+
+Picture.prototype.duplicate = function () {
+    var newPic = new Picture();
+    for (var pid in this.colors) {
+        newPic.colors[pid] = this.colors[pid];
+    }
+    return newPic;
 }
 
 function createTestImage(picture) {
