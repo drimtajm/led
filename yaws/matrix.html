@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title id='Description'>jqxDraw - Basic shapes drawing example</title>
+    <title id='Description'>Led Matrix Controller</title>
     <link rel="stylesheet" href="jqwidgets/styles/jqx.base.css" type="text/css" />
     <script type="text/javascript" src="scripts/jquery-1.11.1.min.js"></script>
     <script type="text/javascript" src="jqwidgets/jqxcore.js"></script>
@@ -11,15 +11,16 @@
     <script type="text/javascript" src="jqwidgets/jqxbuttons.js"></script>
     <script type="text/javascript" src="jqwidgets/jqxscrollbar.js"></script>
     <script type="text/javascript" src="jqwidgets/jqxbuttongroup.js"></script>
-    <script type="text/javascript" src="monocolor_16x8.js"></script>
-    <script type="text/javascript" src="picture.js"></script>
-    <script type="text/javascript" src="common.js"></script>
-    <script type="text/javascript" src="render.js"></script>
+<!--    <script type="text/javascript" src="scripts/monocolor_16x8.js"></script> -->
+    <script type="text/javascript" src="scripts/multicolor_8x8.js"></script>
+    <script type="text/javascript" src="scripts/picture.js"></script>
+    <script type="text/javascript" src="scripts/common.js"></script>
+    <script type="text/javascript" src="scripts/render.js"></script>
     <link  rel="stylesheet" href="led_styles.css" type="text/css"/>
     <script type="text/javascript">
-
-	$(document).ready(function () {
-			createTestImage(currentPicture);
+      
+      $(document).ready(function () {
+	    createTestImage(currentPicture);
 	    initMain();
 	    for (var index = 0; index < pictures.length; index++) {
 		createNewMini(pictures[index]);
@@ -55,16 +56,16 @@
 	});
     </script>
 </head>
-<body class='default'>
-    <div id='debug'>-</div>
-    <div id='container' style="width:800px; height:400px"></div>
-    <div id='minitures' style="width:100%; height:auto"></div>
+<body class="default">
+    <div id="debug">-</div>
+    <div id="container"></div>
+    <div id="miniatures" style="width:100%; height:auto"></div>
     <button id="clearall" type="button">Rensa</button>
     <button id="copy" type="button">Kopiera</button>
     <button id="delete" type="button">Ta bort</button>
     <div style="width:100%; display: inline-block">
       <form id="form">
-	<textarea name="code" id="jqxTextArea" style="height:80px; width:800px"></textarea>
+	<textarea name="code" id="jqxTextArea" style="height:100px; width:800px"></textarea>
 	<button type="button" onclick="submit_code()">Visa</button>
 	<button type="button" onclick="shutdown_matrix()">Avsluta</button>
       </form>

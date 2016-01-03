@@ -68,8 +68,10 @@ function ProgramUpdater() {
 
 function initMain()
 {
-    $('#container').jqxDraw();
-    var renderer = $('#container').jqxDraw('getInstance');
+    $("#container").css("width", COLUMNS*50);
+    $("#container").css("height", ROWS*50);
+    $("#container").jqxDraw();
+    var renderer = $("#container").jqxDraw('getInstance');
     var circleElements = createMatrix(renderer, true, null);
     addMouseHandlers(renderer, circleElements);
     main_up = new ImageUpdater(renderer, circleElements);
@@ -94,9 +96,9 @@ function updateMiniSelection() {
 }
 
 function createNewMini(pic) {
-    var mid = 'mini_' + pic.id;
-    $('#minitures').append('<div id="' + mid + '"></div>');
-    var minielem = $('#' + mid);
+    var mid = "mini_" + pic.id;
+    $("#miniatures").append('<div id="' + mid + '"></div>');
+    var minielem = $("#" + mid);
     minielem.css({'width' : '85px',
                       'height': '80px',
                       'display' : 'inline-block'
@@ -140,7 +142,7 @@ function delete_current_picture() {
     var cidx = pictures.indexOf(currentPicture);
     pictures.splice(cidx, 1);
     currentPicture.unobserve(main_up);
-    $('#mini_' + currentPicture.id).remove();
+    $("#mini_" + currentPicture.id).remove();
 
     var nextCidx = Math.min(cidx, pictures.length - 1);
     currentPicture = pictures[nextCidx];
