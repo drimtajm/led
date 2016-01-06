@@ -30,7 +30,7 @@ function createPictureProgram(picture) {
         if (colors[id] != 0) {
             if (addComma) pgm += ", ";
             if (MULTICOLOR) {
-                pgm += "{\"" + id + "\"," + colors[id] + "}";
+                pgm += "{\"" + id + "\", \"" + COLORS[colors[id]][1] + "\"}";
             } else {
                 pgm += "\"" + id + "\"";
             }
@@ -99,7 +99,7 @@ function createNewMini(pic) {
     var mid = "mini_" + pic.id;
     $("#miniatures").append('<div id="' + mid + '"></div>');
     var minielem = $("#" + mid);
-    minielem.css({'width' : '85px',
+    minielem.css({'width' : MINIWIDTH,
                       'height': '80px',
                       'display' : 'inline-block'
                      });

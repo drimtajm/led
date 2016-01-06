@@ -10,7 +10,7 @@ ImageUpdater.prototype.refresh = function (picture) {
         var col = picture.colors[id];
         var element = this.elements[id]
         this.renderer.attr(element, {
-            fill: COLORS[col]
+            fill: COLORS[col][0]
         });
     }
 }
@@ -22,7 +22,7 @@ ImageUpdater.prototype.pictureChange = function(picture, what, who, value) {
             break;
         case 'PIXEL':
             this.renderer.attr(this.elements[who], {
-                fill: COLORS[value]
+                fill: COLORS[value][0]
             });
             break;
     }
@@ -81,7 +81,7 @@ function createMatrix(renderer, showLabels, id) {
             var ypos = y_offset + margin + cell_size / 2 + y * cell_size;
             // params: cx, cy, circle_radius, params
             var circleElement = renderer.circle(xpos, ypos, circle_radius, {
-                fill: COLORS[0],
+                fill: COLORS[0][0],
                 stroke: 'darkblue'
             });
             circleElements[elementId] = circleElement;
@@ -91,14 +91,14 @@ function createMatrix(renderer, showLabels, id) {
         for (var y = 0; y < ROWS; y++) {
             // params: text, x, y, width, height, angle, params, clip, halign, valign, rotateAround
             var ypos = y_offset + margin + y * cell_size;
-            renderer.text(rowId(y), y_offset, ypos, margin, cell_size, 0, {
+            renderer.text(rowId(y), x_offset, ypos, margin, cell_size, 0, {
                 'class': 'rowColumnText',
                 'font-size': f_size
             }, false, 'center', 'center', 'centermiddle');
         }
         for (var x = 0; x < COLUMNS; x++) {
             var xpos = x_offset + margin + x * cell_size;
-            renderer.text(colId(x), xpos, x_offset, cell_size, margin, 0, {
+            renderer.text(colId(x), xpos, y_offset, cell_size, margin, 0, {
                 'class': 'rowColumnText',
                 'font-size': f_size
             }, false, 'center', 'center', 'centermiddle');
@@ -119,7 +119,6 @@ function createMatrix(renderer, showLabels, id) {
 function addMouseHandlers(renderer, circleElements) {
     for(var elementId in circleElements) {
         var circleElement = circleElements[elementId];
-        renderer.on(circleElement, 'mousedown', getUpdater(elementId));
         renderer.on(circleElement, 'mousedown', function (event) {
             $('#debug').text('mousedown');
             freeline = true;

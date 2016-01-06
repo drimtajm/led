@@ -11,58 +11,81 @@
     <script type="text/javascript" src="jqwidgets/jqxbuttons.js"></script>
     <script type="text/javascript" src="jqwidgets/jqxscrollbar.js"></script>
     <script type="text/javascript" src="jqwidgets/jqxbuttongroup.js"></script>
-<!--    <script type="text/javascript" src="scripts/monocolor_16x8.js"></script> -->
+    <script type="text/javascript" src="jqwidgets/jqxlistbox.js"></script>
+    <script type="text/javascript" src="jqwidgets/jqxdropdownlist.js"></script>
+    <!-- <script type="text/javascript" src="scripts/monocolor_16x8.js"></script> -->
     <script type="text/javascript" src="scripts/multicolor_8x8.js"></script>
     <script type="text/javascript" src="scripts/picture.js"></script>
     <script type="text/javascript" src="scripts/common.js"></script>
     <script type="text/javascript" src="scripts/render.js"></script>
     <link  rel="stylesheet" href="led_styles.css" type="text/css"/>
     <script type="text/javascript">
-      
-      $(document).ready(function () {
-	    createTestImage(currentPicture);
-	    initMain();
-	    for (var index = 0; index < pictures.length; index++) {
-		createNewMini(pictures[index]);
-	    }
-	    updateMiniSelection();
-	    /*
-	    buttons = ""
-	    i = 0
-	    for (col in COLORS) {
-		$("#toolbar").append("<button style='padding:4px 16px; width:20px; height:20px; background-color:"+ COLORS[i] + ";'>X</button>");
-		//$("#toolbar").append("<button style='padding:4px 16px; width=20;'>X</button>");
-		i++;
-	    }
-	    // $("#toolbar").text(buttons)
-	    $("#toolbar").jqxButtonGroup({ mode: 'radio' })
-	    $("#toolbar").on('selected', function(event) {
-		$("#toolbar > div").text('')
-		index = event.args.index + 1
-		$("#toolbar div:nth-child(" + index + ")").text('X')
-
-	    })
-	    $("#toolbar").jqxButtonGroup('setSelection', 0)
-	    */
-	    $('#jqxTextArea').jqxTextArea({ placeHolder: "", minLength: 1});
-	    $('#jqxTextArea').jqxTextArea('val', createProgram(currentPicture));
-	    progObserer = new ProgramUpdater();
-	    for (var index = 0; index < pictures.length; index++) {
-		pictures[index].observe(progObserer);
-	    }
-	    $("#clearall").on('click', clear_all);
-	    $("#copy").on('click', clone_current_picture);
-	    $("#delete").on('click', delete_current_picture);
-	});
+        $(document).ready(function () {
+            createTestImage(currentPicture);
+            initMain();
+            for (var index = 0; index < pictures.length; index++) {
+                createNewMini(pictures[index]);
+            }
+            updateMiniSelection();
+            $('#jqxTextArea').jqxTextArea({ placeHolder: "", minLength: 1});
+            $('#jqxTextArea').jqxTextArea('val', createProgram(currentPicture));
+            progObserer = new ProgramUpdater();
+            for (var index = 0; index < pictures.length; index++) {
+                pictures[index].observe(progObserer);
+            }
+            $("#clearall").on('click', clear_all);
+            $("#copy").on('click', clone_current_picture);
+            $("#delete").on('click', delete_current_picture);
+            $("#drawtools").jqxButtonGroup({ mode: 'radio' });
+            $("#drawtools").jqxButtonGroup('setSelection', 1);
+            freeline_color = 1;
+            $("#drawtools").on('buttonclick', function (event) {
+                var clickedButton = event.args.button;
+                switch (clickedButton[0].id) {
+                    case 'erase':
+                        $('#debug').text('erasetool');
+                        freeline_color = 0;
+                        break;
+                    case 'freeline':
+                        $('#debug').text('freelinetool');
+                        freeline_color = $('#colorselection').jqxDropDownList('selectedIndex') + 1;
+                        break;
+                }
+            });
+            var source = [];
+            for (var i = 1; i < COLORS.length; i++) {
+                source.push({ html: "<div style='height: 32px; background-color:" + COLORS[i][0] + "'><span style='float: left; font-size: 32px; font-family: Verdana Arial;'></span></div>", title: COLORS[i][1] })
+            }
+            $("#colorselection").jqxDropDownList({source: source, 
+                                                  selectedIndex: 0, 
+                                                  width:100, 
+                                                  height:"48px",
+                                                  dropDownHeight: 44*(COLORS.length-1)});
+            $('#colorselection').on('select', function (event) {
+                    var args = event.args;
+                    var item = $('#colorselection').jqxDropDownList('getItem', args.index);
+                    if (item != null) {
+                        freeline_color = args.index + 1;
+                    }
+                });
+        });
     </script>
 </head>
 <body class="default">
     <div id="debug">-</div>
+    <div id='toolbar' >
+        <div id='drawtools' style="display: inline-block">
+            <button id="erase"><img src="images/eraser.png"></button>
+            <button id="freeline"><img src="images/freeline.png"></button>
+            <!-- <button id="line"><img src="images/line.png"></button> -->
+        </div>
+        <div id='colorselection' style="display: inline-block"></div>
+    </div>
     <div id="container"></div>
     <div id="miniatures" style="width:100%; height:auto"></div>
-    <button id="clearall" type="button">Rensa</button>
-    <button id="copy" type="button">Kopiera</button>
-    <button id="delete" type="button">Ta bort</button>
+    <button id="clearall" type="button">Rensa bild</button>
+    <button id="copy" type="button">Kopiera bild</button>
+    <button id="delete" type="button">Ta bort bild</button>
     <div style="width:100%; display: inline-block">
       <form id="form">
 	<textarea name="code" id="jqxTextArea" style="height:100px; width:800px"></textarea>
