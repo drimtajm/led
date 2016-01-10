@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title id='Description'>Led Matrix Controller</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />    
+    <title id='Description'>Led Matrix Controller</title>
     <link rel="stylesheet" href="jqwidgets/styles/jqx.base.css" type="text/css" />
     <script type="text/javascript" src="scripts/jquery-1.11.1.min.js"></script>
     <script type="text/javascript" src="jqwidgets/jqxcore.js"></script>
+    <script type="text/javascript" src="jqwidgets/jqxdata.js"></script> 
+
     <script type="text/javascript" src="jqwidgets/jqxdraw.js"></script>
     <script type="text/javascript" src="jqwidgets/jqxtooltip.js"></script>
     <script type="text/javascript" src="jqwidgets/jqxtextarea.js"></script>
@@ -14,26 +16,26 @@
     <script type="text/javascript" src="jqwidgets/jqxbuttongroup.js"></script>
     <script type="text/javascript" src="jqwidgets/jqxlistbox.js"></script>
     <script type="text/javascript" src="jqwidgets/jqxdropdownlist.js"></script>
-    <!-- <script type="text/javascript" src="scripts/monocolor_16x8.js"></script> -->
+    <script type="text/javascript" src="jqwidgets/jqxdatatable.js"></script>
+    <script type="text/javascript" src="jqwidgets/jqxinput.js"></script>
+    <script type="text/javascript" src="jqwidgets/jqxslider.js"></script>
+
+    <!--<script type="text/javascript" src="scripts/monocolor_16x8.js"></script>-->
     <script type="text/javascript" src="scripts/multicolor_8x8.js"></script>
     <script type="text/javascript" src="scripts/picture.js"></script>
+    <script type="text/javascript" src="scripts/program.js"></script>
     <script type="text/javascript" src="scripts/common.js"></script>
     <script type="text/javascript" src="scripts/render.js"></script>
     <link  rel="stylesheet" href="led_styles.css" type="text/css"/>
     <script type="text/javascript">
         $(document).ready(function () {
-            createTestImage(currentPicture);
-            initMain();
-            for (var index = 0; index < pictures.length; index++) {
-                createNewMini(pictures[index]);
-            }
-            updateMiniSelection();
+            initAll();
+            $('#pictureCode').jqxTextArea({ placeHolder: "", minLength: 1});
+            $('#pictureCode').jqxTextArea('val', createPictureProgram(currentPicture));
+            $('#programCode').jqxTextArea({ placeHolder: "", minLength: 1});
+            $('#programCode').jqxTextArea('val', createProgramSteps());
             $('#jqxTextArea').jqxTextArea({ placeHolder: "", minLength: 1});
-            $('#jqxTextArea').jqxTextArea('val', createProgram(currentPicture));
-            progObserer = new ProgramUpdater();
-            for (var index = 0; index < pictures.length; index++) {
-                pictures[index].observe(progObserer);
-            }
+            $('#jqxTextArea').jqxTextArea('val', createProgram());
             $("#clearall").on('click', clear_all);
             $("#copy").on('click', clone_current_picture);
             $("#delete").on('click', delete_current_picture);
@@ -60,7 +62,7 @@
             $("#colorselection").jqxDropDownList({source: source, 
                                                   selectedIndex: 0, 
                                                   width:100, 
-                                                  height:"48px",
+                                                  height:"40px",
                                                   dropDownHeight: 44*(COLORS.length-1)});
             $('#colorselection').on('select', function (event) {
                     var args = event.args;
@@ -69,30 +71,228 @@
                         freeline_color = args.index + 1;
                     }
                 });
+            
+            var source =
+            {
+                localData: pgmSource,
+                datatype: "obserableArray",
+                updateRow: function (rowId, newRowData, commit) {
+                    var step = pgmSource[rowId];
+                    step.action = newRowData.action;
+                    step.time = newRowData.time;
+                    step.pictureId = newRowData.pictureId;
+                    pgmSource[rowId] = step;
+                    commit(true);
+                },
+                dataFields:
+                [
+                    { name: 'pictureId', type: 'string' },
+                    { name: 'action', type: 'string' },
+                    { name: 'time', type: 'number' }
+                ]
+            };
+            var dataAdapter = new $.jqx.dataAdapter(source);
+            
+            var picSelSource =
+            {
+                localData: pictures,
+                datatype: "array",
+                dataFields:
+                [
+                    { name: 'id', type: 'string' }
+                ]
+            };
+            var picSelDataAdapter = new $.jqx.dataAdapter(picSelSource);
+
+            $("#programPanel").jqxDataTable(
+            {
+                width: '100%',
+                height: '600',
+                source: dataAdapter,
+                pageable: false,
+                editable: true,
+                autoRowHeight: false,
+                selectionMode: "singleRow",
+                columns: [
+                  {
+                      text: 'Bild', 
+                      columntype: 'template', 
+                      datafield: 'pictureId', 
+                      width: 100, 
+                      createEditor: function (row, cellvalue, editor, cellText, width, height) {
+                          editor.jqxDropDownList({
+                              source: picSelDataAdapter, displayMember: 'id', valueMember: 'id', width: width, height: height
+                          });
+                      },
+                      initEditor: function (row, cellvalue, editor, celltext, width, height) {
+                          // set the editor's current value. The callback is called each time the editor is displayed.
+                            editor.jqxDropDownList({ source: picSelDataAdapter, width: width, height: height });
+                            editor.val(cellvalue);
+                      },
+                      getEditorValue: function (row, cellvalue, editor) {
+                          // return the editor's value.
+                          return editor.val();
+                      }
+                  },
+                 {
+                     text: 'Tid', 
+                     width: 100, 
+                     columntype: 'custom', 
+                     datafield: 'time',
+                     cellsFormat: 'f1',
+                     createEditor: function (row, cellvalue, editor, cellText, width, height) {
+                         var timeChoices = ["0.2", "0.4", "0.6", "0.8", "1.0",
+                                            "1.2", "1.4", "1.6", "1.8", "2.0",
+                                            "2.2", "2.4", "2.6", "2.8", "3.0"]
+                         editor.jqxDropDownList({
+                              source: timeChoices, width: width, height: height
+                          });
+                     },
+                     initEditor: function (row, cellvalue, editor, celltext, width, height) {
+                         // set the editor's current value. The callback is called each time the editor is displayed.
+                         editor.val(dataAdapter.formatNumber(cellvalue, 'f1'));
+                     },
+                     getEditorValue: function (row, cellvalue, editor) {
+                         // return the editor's value.
+                           return parseFloat(editor.val());
+                     }
+                 },
+                  {
+                      text: 'Action', 
+                      columntype: 'template', 
+                      datafield: 'action', 
+                      width: 100, 
+                      createEditor: function (row, cellvalue, editor, cellText, width, height) {
+                          // construct the editor.
+                          editor.jqxDropDownList({
+                              source: ['Visa', 'Animera'], width: width, height: height
+                          });
+                      },
+                      initEditor: function (row, cellvalue, editor, celltext, width, height) {
+                          // set the editor's current value. The callback is called each time the editor is displayed.
+                            editor.jqxDropDownList({ width: width, height: height });
+                            editor.val(cellvalue);
+                      },
+                      getEditorValue: function (row, cellvalue, editor) {
+                          // return the editor's value.
+                          return editor.val();
+                      }
+                  },
+                ]
+            });
+            var selectedRow = null;
+            $('#programPanel').on('rowSelect', 
+                function (event)
+                {
+                    selectedRow = args.index;
+                    $('#debug').text('sel ' + selectedRow);
+                });
+            $("#addstep").click(function() {
+                if (selectedRow == null) {
+                    var step = new ProgramStep();
+                    step.pictureId = currentPicture.id;
+                    step.time = 2;
+                    step.action = 'Visa';
+                    pgmSource.push(step);
+                }
+                else {
+                    var clone = pgmSource[selectedRow].duplicate();
+                    pgmSource.push(clone);
+                    selectedRow = null;
+                }
+                $("#programPanel").jqxDataTable('updateBoundData');
+            });
+            $("#delstep").click(function() {
+                if (selectedRow != null) {
+                    pgmSource.splice(selectedRow, 1);
+                    selectedRow = null;
+                    $("#programPanel").jqxDataTable('updateBoundData');
+                }
+            });
+            $("#upstep").click(function() {
+                if (selectedRow != null) {
+                    if (selectedRow >= 1) {
+                        var tmp = pgmSource[selectedRow - 1];
+                        pgmSource[selectedRow - 1] = pgmSource[selectedRow];
+                        pgmSource[selectedRow] = tmp;
+                        $("#programPanel").jqxDataTable('updateBoundData');
+                        $("#programPanel").jqxDataTable('selectRow', selectedRow - 1);
+                    }
+                }
+            });
+            $("#downstep").click(function() {
+                if (selectedRow != null) {
+                    if (selectedRow <= pgmSource.length - 2) {
+                        var tmp = pgmSource[selectedRow + 1];
+                        pgmSource[selectedRow + 1] = pgmSource[selectedRow];
+                        pgmSource[selectedRow] = tmp;
+                        $("#programPanel").jqxDataTable('updateBoundData');
+                        $("#programPanel").jqxDataTable('selectRow', selectedRow + 1);
+                    }
+                }
+            });
         });
     </script>
 </head>
 <body class="default">
     <div id="debug">-</div>
-    <div id='toolbar' >
-        <div id='drawtools' style="display: inline-block">
-            <button id="erase"><img src="images/eraser.png"></button>
-            <button id="freeline"><img src="images/freeline.png"></button>
-            <!-- <button id="line"><img src="images/line.png"></button> -->
+    <div class="row" style="display:flex">
+        <div class="col-8" style="background-color:lightgray">
+            <div class="row" id='toolbar'>
+                <div class="col-12">
+                    <div id='drawtools' style="float:left">
+                        <button id="erase"><img src="images/eraser.png"></button>
+                        <button id="freeline"><img src="images/freeline.png"></button>
+                        <!-- <button id="line"><img src="images/line.png"></button> -->
+                    </div>
+                    <div style="float:left">&nbsp;&nbsp;</div>
+                    <div id='colorselection' style="float:left"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div id="container" style="float:left"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12" id="miniatures" style="height:auto"></div>
+            </div>
+            <div class="row">
+                <div class="col-12" >
+                    <button id="clearall" type="button">Rensa bild</button>
+                    <button id="copy" type="button">Kopiera bild</button>
+                    <button id="delete" type="button">Ta bort bild</button>
+                </div>
+            </div>
         </div>
-        <div id='colorselection' style="display: inline-block"></div>
+        <div class="col-4" style="align-items:stretch; background-color:white">
+            <div class="row">
+                <div class="col-12" id="programPanel"></div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <button id="addstep">Ny rad</button>
+                    <button id="delstep">Ta bort rad</button>
+                    <button id="upstep">Rad upp</button>
+                    <button id="downstep">Rad ner</button>
+                </div>
+            </div>
+        </div>
     </div>
-    <div id="container"></div>
-    <div id="miniatures" style="width:100%; height:auto"></div>
-    <button id="clearall" type="button">Rensa bild</button>
-    <button id="copy" type="button">Kopiera bild</button>
-    <button id="delete" type="button">Ta bort bild</button>
+    <div class="row">
+        <div class="col-8">
+            <textarea id="pictureCode" style="height:100px;width:100%"></textarea>
+        </div>
+        <div class="col-4">
+            <textarea id="programCode" style="height:100px;width:100%"></textarea>
+        </div>
+    </div>
     <div style="width:100%; display: inline-block">
-      <form id="form">
-	<textarea name="code" id="jqxTextArea" style="height:100px; width:800px"></textarea>
-	<button type="button" onclick="submit_code()">Visa</button>
-	<button type="button" onclick="shutdown_matrix()">Avsluta</button>
-      </form>
+        <form id="form">
+            <textarea name="code" id="jqxTextArea" style="height:100px; width:100%"></textarea>
+            <button type="button" onclick="submit_code()">Visa</button>
+	        <button type="button" onclick="shutdown_matrix()">Avsluta</button>
+        </form>
     </div>
 </body>
 </html>

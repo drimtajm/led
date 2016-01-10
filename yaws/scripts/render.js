@@ -31,11 +31,6 @@ ImageUpdater.prototype.pictureChange = function(picture, what, who, value) {
 var freeline = false;
 var freeline_color = 1
 
-function getUpdater(elementId) {
-    return function () {
-        changeColor(elementId);
-    }
-}
 
 function getColorSetter(elementId) {
     return function () {
@@ -46,7 +41,7 @@ function getColorSetter(elementId) {
     }
 }
 
-function createMatrix(renderer, showLabels, id) {
+function createMatrix(renderer, showLabels, id, center) {
     var size = renderer.getSize();
     var margin = 0;
     var x_offset = 0;
@@ -66,7 +61,10 @@ function createMatrix(renderer, showLabels, id) {
     var cell_size = Math.min(x_size, y_size);
     var circle_radius = cell_size * 0.45;
     var f_size = cell_size * 0.8;
-    x_offset = (size.width - cell_size * x_cells) / 2;
+    if (center) {
+        x_offset = (size.width - cell_size * x_cells) / 2;
+    }
+
     y_offset = (size.height - cell_size * y_cells) / 2;
     
     if (showLabels) {
@@ -124,5 +122,6 @@ function addMouseHandlers(renderer, circleElements) {
             freeline = true;
         });
         renderer.on(circleElement, 'mousemove', getColorSetter(elementId));
+        renderer.on(circleElement, 'mousedown', getColorSetter(elementId));
     }
 }

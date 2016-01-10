@@ -15,6 +15,7 @@ function Picture() {
     this.id = 'Bild' + nextPictureId;
     nextPictureId ++;
     this.colors = {};
+    this.order = [];
     this.listeners = [];
     this._clear();
 }
@@ -27,6 +28,7 @@ Picture.prototype._clear = function () {
             this.colors[elementId] = 0;
         }
     }
+    this.order = [];
 }
 
 Picture.prototype.observe = function (observer) {
@@ -52,6 +54,13 @@ Picture.prototype.notify = function (what, who, value) {
 Picture.prototype.setPixel = function (pid, value) {
     if (this.colors[pid] != value) {
         this.colors[pid] = value;
+        for (var i = 0, len = this.order.length; i < len; i++) {
+            if (this.order[i] === pid) {
+                this.order.splice(i, 1);
+                break;
+            }
+        }
+        this.order.push(pid);
         this.notify('PIXEL', pid, value);
     }
 }
@@ -66,6 +75,10 @@ Picture.prototype.duplicate = function () {
     for (var pid in this.colors) {
         newPic.colors[pid] = this.colors[pid];
     }
+    for (var pid in this.order) {
+        newPic.order.push(pid);
+    }
+
     return newPic;
 }
 
