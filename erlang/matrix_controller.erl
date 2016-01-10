@@ -1,3 +1,4 @@
+%% coding: utf-8
 -module(matrix_controller).
 
 -include("matrix.hrl").
@@ -67,8 +68,11 @@ do_display(PointList0, DisplayFunction) ->
     ok.
 
 get_colour(1) -> "röd";
-get_colour(2) -> "grön"; 
-get_colour(3) -> "orange".
+get_colour(2) -> "grön";
+get_colour(3) -> "orange";
+get_colour(String) when is_list(String) ->
+    NewString = unicode:characters_to_list(list_to_binary(String)),
+    string:to_lower(NewString).
 
 receive_loop() ->
     Result =
