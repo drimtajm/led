@@ -75,8 +75,8 @@ Picture.prototype.duplicate = function () {
     for (var pid in this.colors) {
         newPic.colors[pid] = this.colors[pid];
     }
-    for (var pid in this.order) {
-        newPic.order.push(pid);
+    for (var len = this.order.length, i=0; i<len; ++i) {
+        newPic.order.push(this.order[i]);
     }
 
     return newPic;

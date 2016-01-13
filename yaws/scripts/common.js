@@ -110,7 +110,6 @@ function initAll()
     currentPicture.observe(picProgObserver);
     pgmArray = Array();
     pgmSource = new $.jqx.observableArray(pgmArray, function (changed) {
-        console.info(changed);
         $('#programCode').jqxTextArea('val', createProgramSteps());
         progObserver.refresh(currentPicture);
     });
