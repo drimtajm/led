@@ -36,9 +36,9 @@
             $('#programCode').jqxTextArea('val', createProgramSteps());
             $('#jqxTextArea').jqxTextArea({ placeHolder: "", minLength: 1});
             $('#jqxTextArea').jqxTextArea('val', createProgram());
-            $("#clearall").on('click', clear_all);
-            $("#copy").on('click', clone_current_picture);
-            $("#delete").on('click', delete_current_picture);
+            $("#clearall").on('click', clearAll);
+            $("#copy").on('click', cloneCurrentPicture);
+            $("#delete").on('click', deleteCurrentPicture);
             $("#drawtools").jqxButtonGroup({ mode: 'radio' });
             $("#drawtools").jqxButtonGroup('setSelection', 1);
             freeline_color = 1;
@@ -180,56 +180,28 @@
                   },
                 ]
             });
-            var selectedRow = null;
             $('#programPanel').on('rowSelect', 
-                function (event)
-                {
+                function (event) {
                     selectedRow = args.index;
                     $('#debug').text('sel ' + selectedRow);
                 });
             $("#addstep").click(function() {
-                if (selectedRow == null) {
-                    var step = new ProgramStep();
-                    step.pictureId = currentPicture.id;
-                    step.time = 2;
-                    step.action = 'Visa';
-                    pgmSource.push(step);
-                }
-                else {
-                    var clone = pgmSource[selectedRow].duplicate();
-                    pgmSource.push(clone);
-                    selectedRow = null;
-                }
+                createNewProgramStep();
                 $("#programPanel").jqxDataTable('updateBoundData');
             });
             $("#delstep").click(function() {
-                if (selectedRow != null) {
-                    pgmSource.splice(selectedRow, 1);
-                    selectedRow = null;
-                    $("#programPanel").jqxDataTable('updateBoundData');
-                }
+                deleteSelectedRow();
+                $("#programPanel").jqxDataTable('updateBoundData');
             });
             $("#upstep").click(function() {
-                if (selectedRow != null) {
-                    if (selectedRow >= 1) {
-                        var tmp = pgmSource[selectedRow - 1];
-                        pgmSource[selectedRow - 1] = pgmSource[selectedRow];
-                        pgmSource[selectedRow] = tmp;
-                        $("#programPanel").jqxDataTable('updateBoundData');
-                        $("#programPanel").jqxDataTable('selectRow', selectedRow - 1);
-                    }
-                }
+                moveSelectedRowUp();
+                $("#programPanel").jqxDataTable('updateBoundData');
+                $("#programPanel").jqxDataTable('selectRow', selectedRow);
             });
             $("#downstep").click(function() {
-                if (selectedRow != null) {
-                    if (selectedRow <= pgmSource.length - 2) {
-                        var tmp = pgmSource[selectedRow + 1];
-                        pgmSource[selectedRow + 1] = pgmSource[selectedRow];
-                        pgmSource[selectedRow] = tmp;
-                        $("#programPanel").jqxDataTable('updateBoundData');
-                        $("#programPanel").jqxDataTable('selectRow', selectedRow + 1);
-                    }
-                }
+                moveSelectedRowDown();
+                $("#programPanel").jqxDataTable('updateBoundData');
+                $("#programPanel").jqxDataTable('selectRow', selectedRow);
             });
         });
     </script>
@@ -237,7 +209,7 @@
 <body class="default">
     <div id="debug">-</div>
     <div class="row" style="display:flex">
-        <div class="col-8" style="background-color:lightgray">
+        <div class="col-8" style="background-color:#E0E0E0">
             <div class="row" id='toolbar'>
                 <div class="col-12">
                     <div id='drawtools' style="float:left">

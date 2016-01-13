@@ -10,6 +10,8 @@ var picProgObserver;
 
 var pgmArray;
 var pgmSource;
+var selectedRow = null;
+
 
 function submit_code() {
     var code = $('#jqxTextArea').jqxTextArea('val');
@@ -208,11 +210,11 @@ function createNewMini(pic) {
     })
 }
 
-function clear_all() {
+function clearAll() {
     currentPicture.clear();
 }
 
-function clone_current_picture() {
+function cloneCurrentPicture() {
     var npic = currentPicture.duplicate();
     pictures.push(npic);
     createNewMini(npic);
@@ -221,16 +223,71 @@ function clone_current_picture() {
     switchCurrentPicture(npic);
 }
 
-function delete_current_picture() {
+function deleteCurrentPicture() {
     if (pictures.length == 1) return;
     
+    for (var i = 0; i < pgmSource.length; ) {
+        if (pgmSource[i].pictureId == currentPicture.id) {
+            pgmSource.splice(i, 1);
+        }
+        else {
+            i++;
+        }
+    }
+    selectedRow = null;
+
     var cidx = pictures.indexOf(currentPicture);
     pictures.splice(cidx, 1);
     $("#mini_" + currentPicture.id).remove();
     var nextCidx = Math.min(cidx, pictures.length - 1);
     switchCurrentPicture(pictures[nextCidx]);
+    $("#programPanel").jqxDataTable('updateBoundData');
 }
 
 function setColor(elementId, color) {
     currentPicture.setPixel(elementId, color);
+}
+
+function createNewProgramStep() {
+    if (selectedRow == null) {
+        var step = new ProgramStep();
+        step.pictureId = currentPicture.id;
+        step.time = 2;
+        step.action = 'Visa';
+        pgmSource.push(step);
+    }
+    else {
+        var clone = pgmSource[selectedRow].duplicate();
+        pgmSource.push(clone);
+        selectedRow = null;
+    }
+}
+
+function deleteSelectedRow() {
+    if (selectedRow != null) {
+        pgmSource.splice(selectedRow, 1);
+        selectedRow = null;
+    }
+}
+
+function moveSelectedRowUp() {
+    if (selectedRow != null) {
+        if (selectedRow >= 1) {
+            var tmp = pgmSource[selectedRow - 1];
+            pgmSource[selectedRow - 1] = pgmSource[selectedRow];
+            pgmSource[selectedRow] = tmp;
+            selectedRow = selectedRow - 1;
+        }
+    }
+}
+
+function moveSelectedRowDown() {
+    if (selectedRow != null) {
+        if (selectedRow <= pgmSource.length - 2) {
+            var tmp = pgmSource[selectedRow + 1];
+            pgmSource[selectedRow + 1] = pgmSource[selectedRow];
+            pgmSource[selectedRow] = tmp;
+            selectedRow = selectedRow + 1;
+        }
+    }
 }
