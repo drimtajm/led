@@ -1,8 +1,9 @@
 'use strict';
 
-function ImageUpdater(renderer, circleElements) {
+function ImageUpdater(renderer, circleElements, indexElements) {
     this.renderer = renderer;
     this.elements = circleElements;
+    this.indexElements = indexElements
 }
 
 ImageUpdater.prototype.refresh = function (picture) {
@@ -13,19 +14,41 @@ ImageUpdater.prototype.refresh = function (picture) {
             fill: COLORS[col][0]
         });
     }
+    this.refreshIndex(picture);
 }
 
-ImageUpdater.prototype.pictureChange = function(picture, what, who, value) {
-    switch(what) {
-        case 'ALL':
-            this.refresh(picture);            
-            break;
-        case 'PIXEL':
-            this.renderer.attr(this.elements[who], {
-                fill: COLORS[value][0]
-            });
-            break;
+ImageUpdater.prototype.refreshIndex = function (picture) {
+    if (this.indexElements == null)
+        return;
+
+    for (var id in this.elements) {
+        var idx = picture.order.indexOf(id);
+        if (idx >= 9) {
+            idx = '' + (idx + 1);
+
+        } else if (idx >= 0) {
+            idx = '&nbsp;' + (idx + 1);
+        } else {
+            idx = '';
+        }
+        var element = this.indexElements[id];
+        if (element != undefined)
+            element.innerHTML = idx;
     }
+}
+
+ImageUpdater.prototype.pictureChange = function (picture, what, who, value) {
+    switch (what) {
+    case 'ALL':
+        this.refresh(picture);
+        break;
+    case 'PIXEL':
+        this.renderer.attr(this.elements[who], {
+            fill: COLORS[value][0]
+        });
+        break;
+    }
+    this.refreshIndex(picture);
 }
 
 var freeline = false;
@@ -41,7 +64,7 @@ function getColorSetter(elementId) {
     }
 }
 
-function createMatrix(renderer, showLabels, id, center) {
+function createMatrix(renderer, showLabels, id, center, index_nums) {
     var size = renderer.getSize();
     var margin = 0;
     var x_offset = 0;
@@ -53,7 +76,7 @@ function createMatrix(renderer, showLabels, id, center) {
         y_cells++;
     }
     if (id != null) {
-        y_cells+=2;
+        y_cells += 2;
     }
 
     var x_size = size.width / x_cells;
@@ -66,12 +89,15 @@ function createMatrix(renderer, showLabels, id, center) {
     }
 
     y_offset = (size.height - cell_size * y_cells) / 2;
-    
+
     if (showLabels) {
         margin = cell_size;
     }
 
     var circleElements = {};
+    var indexElements = null;
+    if (index_nums)
+        indexElements = {};
     for (var x = 0; x < COLUMNS; x++) {
         for (var y = 0; y < ROWS; y++) {
             var elementId = colId(x) + rowId(y);
@@ -83,6 +109,15 @@ function createMatrix(renderer, showLabels, id, center) {
                 stroke: 'darkblue'
             });
             circleElements[elementId] = circleElement;
+            if (index_nums) {
+                var cellText = renderer.text(elementId, xpos - cell_size / 2,
+                    ypos - cell_size / 2,
+                    cell_size, cell_size, 0, {
+                        'class': 'rowColumnText',
+                        'font-size': cell_size * 0.4
+                    }, false, 'center', 'center', 'centermiddle');
+                indexElements[elementId] = cellText
+            }
         }
     }
     if (showLabels) {
@@ -105,17 +140,17 @@ function createMatrix(renderer, showLabels, id, center) {
     if (id != null) {
         var ypos = y_offset + margin + ROWS * cell_size;
         var xpos = x_offset + margin;
-        renderer.text(id, xpos, ypos, COLUMNS * cell_size, 2* cell_size, 0, {
+        renderer.text(id, xpos, ypos, COLUMNS * cell_size, 2 * cell_size, 0, {
             'class': 'rowColumnText',
             'font-size': 2 * f_size
         }, false, 'center', 'center', 'centermiddle');
     }
     renderer.refresh();
-    return circleElements;
+    return new ImageUpdater(renderer, circleElements, indexElements);
 }
 
 function addMouseHandlers(renderer, circleElements) {
-    for(var elementId in circleElements) {
+    for (var elementId in circleElements) {
         var circleElement = circleElements[elementId];
         renderer.on(circleElement, 'mousedown', function (event) {
             $('#debug').text('mousedown');

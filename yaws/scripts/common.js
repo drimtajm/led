@@ -130,9 +130,9 @@ function initMain()
     $("#container").css("height", ROWS*50);
     $("#container").jqxDraw();
     var renderer = $("#container").jqxDraw('getInstance');
-    var circleElements = createMatrix(renderer, true, null);
-    addMouseHandlers(renderer, circleElements);
-    main_up = new ImageUpdater(renderer, circleElements);
+    main_up = createMatrix(renderer, true, null, false, true);
+    addMouseHandlers(main_up.renderer, main_up.elements);
+    addMouseHandlers(main_up.renderer, main_up.indexElements);
     main_up.refresh(currentPicture);
     currentPicture.observe(main_up);
     $('#container').on('mouseup', function (event) {
@@ -184,8 +184,7 @@ function progstepMini2(pic) {
     minielem.jqxDraw();
     minielem.data('pic', pic);
     var renderer2 = minielem.jqxDraw('getInstance');
-    var elems2 = createMatrix(renderer2, false, null, true);
-    var up = new ImageUpdater(renderer2, elems2);
+    var up = createMatrix(renderer2, false, null, true);
     up.refresh(pic);
     pic.observe(up);
 }
@@ -201,8 +200,7 @@ function createNewMini(pic) {
     minielem.jqxDraw();
     minielem.data('pic', pic);
     var renderer2 = minielem.jqxDraw('getInstance');
-    var elems2 = createMatrix(renderer2, false, pic.id, true);
-    var up = new ImageUpdater(renderer2, elems2);
+    var up = createMatrix(renderer2, false, pic.id, true, false);
     up.refresh(pic);
     pic.observe(up);
     minielem.on('click', function () {

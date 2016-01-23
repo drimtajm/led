@@ -60,7 +60,8 @@ Picture.prototype.setPixel = function (pid, value) {
                 break;
             }
         }
-        this.order.push(pid);
+        if (value != 0)
+            this.order.push(pid);
         this.notify('PIXEL', pid, value);
     }
 }

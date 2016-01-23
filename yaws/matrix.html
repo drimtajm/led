@@ -141,9 +141,7 @@
                      datafield: 'time',
                      cellsFormat: 'f1',
                      createEditor: function (row, cellvalue, editor, cellText, width, height) {
-                         var timeChoices = ["0.2", "0.4", "0.6", "0.8", "1.0",
-                                            "1.2", "1.4", "1.6", "1.8", "2.0",
-                                            "2.2", "2.4", "2.6", "2.8", "3.0"]
+                         var timeChoices = ["0.5", "1.0", "1.5", "2.0", "2.5", "3.0", "3.5", "4.0", "4.5", "5.0"]
                          editor.jqxDropDownList({
                               source: timeChoices, width: width, height: height
                           });
