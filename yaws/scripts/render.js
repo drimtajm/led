@@ -4,6 +4,7 @@ function ImageUpdater(renderer, circleElements, indexElements) {
     this.renderer = renderer;
     this.elements = circleElements;
     this.indexElements = indexElements
+    this.showOrder = false;
 }
 
 ImageUpdater.prototype.refresh = function (picture) {
@@ -23,11 +24,13 @@ ImageUpdater.prototype.refreshIndex = function (picture) {
 
     for (var id in this.elements) {
         var idx = picture.order.indexOf(id);
-        if (idx >= 9) {
-            idx = '' + (idx + 1);
+        if (this.showOrder && idx >= 0) {
+            if (idx >= 9) {
+                idx = '' + (idx + 1);
 
-        } else if (idx >= 0) {
-            idx = '&nbsp;' + (idx + 1);
+            } else if (idx >= 0) {
+                idx = '&nbsp;' + (idx + 1);
+            }
         } else {
             idx = '';
         }

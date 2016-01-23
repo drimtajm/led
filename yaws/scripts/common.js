@@ -147,7 +147,7 @@ function updateMiniSelection() {
         var el = $(mid)
         var color = '';
         if (pictures[index] == currentPicture) {
-            color = 'green';
+            color = 'lightgreen';
         }
         el.css('background-color', color);
     }
@@ -206,6 +206,74 @@ function createNewMini(pic) {
     minielem.on('click', function () {
         switchCurrentPicture($(this).data('pic'));
     })
+}
+
+function saveProgram() {
+    var pgm =  Object();
+    var pics = Array();
+    pgm['nextPictureId'] = nextPictureId;
+    pgm['pictures'] = pics;
+    for (var i=0, l=pictures.length; i < l; i++) {
+        var p = pictures[i];
+        var pix = Array();
+        for (var j=0; j < p.order.length; j++) {
+            var pid = p.order[j];
+            pix.push([pid, p.colors[pid]])
+        }
+        pics.push({id: p.id, pixels: pix});
+    }
+    var steps = Array();
+    pgm['steps'] = steps;
+    for (var i=0, l=pgmSource.length; i < l; i++) {
+        var p = pgmSource[i];
+        var sco = {
+            pictureId: p.pictureId,
+            time: p.time,
+            action: p.action
+        };
+        steps.push(sco);
+    }
+    var str = JSON.stringify(pgm);
+    $('#debug').text(str);
+}
+
+function loadProgram(savedPgm) {
+    pictures = [];
+    var spics = savedPgm['pictures'];
+    for (var i=0,l=spics.length; i < l; i++) {
+        var sp = spics[i];
+        var p = new Picture();
+        p.id = sp['id'];
+        var pixels = sp['pixels'];
+        for (var j=0; j < pixels.length; j++) {
+            p.setPixel(pixels[j][0], pixels[j][1]);
+        }
+        pictures.push(p)
+    }
+    nextPictureId = savedPgm['nextPictureId'];
+    var steps = savedPgm['steps'];
+    pgmSource.splice(0, pgmSource.length);
+    for (var j=0; j < steps.length; j++) {
+        var sstep = steps[j];
+        var step = new ProgramStep();
+        step.pictureId = sstep['pictureId'];
+        step.time = sstep['time'];
+        step.action = sstep['action'];
+        pgmSource.push(step);
+    }
+    
+    $("#miniatures").html('');
+    for (var index = 0; index < pictures.length; index++) {
+        createNewMini(pictures[index]);
+    }
+    switchCurrentPicture(pictures[0]);
+    selectedRow = -1;
+    $("#programPanel").jqxDataTable('updateBoundData');
+}
+
+function showAnimationOrder(showOrder) {
+    main_up.showOrder = showOrder;
+    main_up.refresh(currentPicture);
 }
 
 function clearAll() {

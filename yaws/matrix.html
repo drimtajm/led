@@ -71,7 +71,11 @@
                         freeline_color = args.index + 1;
                     }
                 });
-            
+            $("#showorder").jqxToggleButton({height:"40px", width:"40px"});
+            $("#showorder").on('click', function() {
+                var toggled = $("#showorder").jqxToggleButton('toggled');
+                showAnimationOrder(toggled);
+            });
             var source =
             {
                 localData: pgmSource,
@@ -202,12 +206,19 @@
                 $("#programPanel").jqxDataTable('selectRow', selectedRow);
             });
         });
+        
+        function load() {
+            $.getJSON('saved.json', function(data) {
+                loadProgram(data);
+            } );    
+        
+        }
     </script>
 </head>
 <body class="default">
     <div id="debug">-</div>
     <div class="row" style="display:flex">
-        <div class="col-8" style="background-color:#E0E0E0">
+        <div class="col-8" style="background-color:#FFF0F0">
             <div class="row" id='toolbar'>
                 <div class="col-12">
                     <div id='drawtools' style="float:left">
@@ -217,6 +228,8 @@
                     </div>
                     <div style="float:left">&nbsp;&nbsp;</div>
                     <div id='colorselection' style="float:left"></div>
+                    <div style="float:left">&nbsp;&nbsp;</div>
+                    <button id="showorder">1...</button>
                 </div>
             </div>
             <div class="row">
@@ -263,6 +276,8 @@
             <button type="button" onclick="submit_code()">Visa</button>
 	        <button type="button" onclick="shutdown_matrix()">Avsluta</button>
         </form>
+        <button type="button" onclick="saveProgram()">Spara</button>
+        <button type="load" onclick="load()">Ladda</button>
     </div>
 </body>
 </html>
