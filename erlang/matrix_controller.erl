@@ -2,7 +2,7 @@
 -module(matrix_controller).
 
 -include("matrix.hrl").
--export([go/0, display/1, animate/1, close/0]).
+-export([go/0, display/2, animate/2, close/0]).
 
 -define(DISPLAY_TYPE, colour_matrix).
 
@@ -19,7 +19,7 @@ get_initial_register_values(double_matrix) ->
      #register_value{register = 16#f, value = 0}].
 
 get_ce_pin(colour_matrix) -> 8;
-get_ce_pin(double_matrix) -> 24. 
+get_ce_pin(double_matrix) -> 24.
 
 init() ->
     DisplayType = ?DISPLAY_TYPE,
@@ -30,7 +30,7 @@ init() ->
 		       display_type = DisplayType},
     {ok, Handle} = matrix_lib:init(Configuration),
     put(handle, Handle),
-    display([]).
+    display([], 0).
 
 close() ->
     Handle = get(handle),
@@ -43,21 +43,22 @@ handle_code(Code) ->
     %% Now parse the tokens into the abstract form
     {ok,ErlAbsForm}=erl_parse:parse_exprs(ErlTokens),
 
-    Bindings0=erl_eval:add_binding('Visa', fun ?MODULE:display/1,
+    Bindings0=erl_eval:add_binding('Visa', fun ?MODULE:display/2,
 				   erl_eval:new_bindings()),
-    Bindings=erl_eval:add_binding('Animera', fun ?MODULE:animate/1,
+    Bindings=erl_eval:add_binding('Animera', fun ?MODULE:animate/2,
 				  Bindings0),
     %% Now evaluate the string
     erl_eval:exprs(ErlAbsForm,Bindings),
+    display([], 0),
     ok.
 
-display(PointList) ->
-    do_display(PointList, fun matrix_lib:display/3).
+display(PointList, WaitTime) ->
+    do_display(PointList, fun matrix_lib:display/3, WaitTime).
 
-animate(PointList) ->
-    do_display(PointList, fun matrix_lib:animate/3).
+animate(PointList, WaitTime) ->
+    do_display(PointList, fun matrix_lib:animate/3, WaitTime).
 
-do_display(PointList0, DisplayFunction) ->
+do_display(PointList0, DisplayFunction, WaitTimeInSeconds) ->
     PointList = case ?DISPLAY_TYPE of
 		    double_matrix -> PointList0;
 		    colour_matrix ->
@@ -65,14 +66,17 @@ do_display(PointList0, DisplayFunction) ->
 			 || {Coordinate, ColourIndex} <- PointList0]
 		end,
     DisplayFunction(get(handle), ?DISPLAY_TYPE, PointList),
+    WaitTimeInMilliseconds = trunc(WaitTimeInSeconds * 1000),
+    timer:sleep(WaitTimeInMilliseconds),
     ok.
 
-get_colour(1) -> "röd";
-get_colour(2) -> "grön";
-get_colour(3) -> "orange";
 get_colour(String) when is_list(String) ->
     NewString = unicode:characters_to_list(list_to_binary(String)),
-    string:to_lower(NewString).
+    string:to_lower(NewString);
+get_colour(1) -> "röd";
+get_colour(2) -> "grön";
+get_colour(3) -> "orange".
+
 
 receive_loop() ->
     Result =
@@ -94,6 +98,6 @@ go() ->
     register(code_receiver, self()),
     init(),
     receive_loop(),
-    display([]),
+    display([], 0),
     close(),
     unregister(code_receiver).
