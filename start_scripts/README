@@ -1,0 +1,10 @@
+Automatic start
+---------------
+Copy led_matrix_software.sh to /etc/init.d/
+> sudo cp led_matrix_software.sh /etc/init.d/
+
+Remove previous version
+> sudo update-rc.d led_matrix_software.sh remove
+
+Install (runlevel set in script header)
+> sudo update-rc.d led_matrix_software.sh defaults
