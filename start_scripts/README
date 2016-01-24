@@ -1,6 +1,8 @@
 Automatic start
 ---------------
 Copy led_matrix_software.sh to /etc/init.d/
+and change DISPLAY_TYPE and/or paths
+inside the script if necessary
 > sudo cp led_matrix_software.sh /etc/init.d/
 
 Remove previous version

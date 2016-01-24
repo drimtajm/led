@@ -1,0 +1,8 @@
+%% -*- erlang -*-
+{application, matrix_controller,
+ [{description, "Led matrix coder dojo backend"},
+  {vsn, "1"},
+  {registered, [matrix_controller_sup, matrix_controller]},
+  {mod, {matrix_controller_app, []}},
+  {modules, [matrix_lib]}
+ ]}.

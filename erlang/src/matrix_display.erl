@@ -1,23 +1,180 @@
--module(matrix_lib).
+%% coding: utf-8
+%%%-------------------------------------------------------------------
+%%% @author  drimtajm
+%%% @copyright (C) 2016, 
+%%% @doc
+%%%
+%%% @end
+%%% Created : 24 Jan 2016 by drimtajm
+%%%-------------------------------------------------------------------
+-module(matrix_display).
 
--include("matrix.hrl").
--export([init/1, display/3, animate/3, teardown/1]).
+-behaviour(gen_server).
 
-%%=========================================================
-%%  API functions
-%%=========================================================
+%% API
+-export([start_link/0, stop/0, clear/0, display/2, animate/2]).
+%% Internal exports
+-export([display/3, animate/3]).
 
-%% init takes a configuration and returns the spi handle.
-%% Do a rudimentary check of incoming parameters.
-init(#configuration{ce_pin = CePin,
-		    initial_register_values = RegVals,
-		    display_type = DisplayType})
-  when (is_integer(CePin) andalso is_list(RegVals)
-	andalso ((DisplayType == colour_matrix)
-		 orelse (DisplayType == double_matrix))) ->
-    {ok, Handle} = spi_interface:open_spi_bus(CePin),
-    ok = set_initial_register_values(Handle, DisplayType, RegVals),
-    {ok, Handle}.
+%% gen_server callbacks
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2,
+	 terminate/2, code_change/3]).
+
+-define(SERVER, ?MODULE).
+
+-record(state, {spi_handle, display_type}).
+
+-record(register_value, {register, value, add = false}).
+-record(double_matrix_row, {left_value = 0,
+			    right_value = 0}).
+-record(colour_matrix_row, {red_value = 0,
+			    green_value = 0}).
+
+%%%===================================================================
+%%% API
+%%%===================================================================
+
+%%--------------------------------------------------------------------
+%% @doc
+%% Starts the server
+%%
+%% @spec start_link() -> {ok, Pid} | ignore | {error, Error}
+%% @end
+%%--------------------------------------------------------------------
+start_link() ->
+    gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
+
+stop() ->
+    gen_server:call(?SERVER, stop).
+
+%% Clears a matrix display
+clear() ->
+    ok = gen_server:call(?SERVER, clear).
+
+%% Displays points on a matrix display
+display(Points, WaitTime) ->
+    call_server(display, Points, WaitTime).
+
+%% Displays points on a matrix display, one point at a time
+animate(Points, WaitTime) ->
+    call_server(animate, Points, WaitTime).
+
+call_server(Function, Points, WaitTimeInSeconds) ->
+    Reply = gen_server:call(?SERVER, {Function, Points}),
+    WaitTimeInMilliseconds = trunc(WaitTimeInSeconds * 1000),
+    timer:sleep(WaitTimeInMilliseconds),
+    io:format("display done~n"),
+    Reply.
+
+%%%===================================================================
+%%% gen_server callbacks
+%%%===================================================================
+
+%%--------------------------------------------------------------------
+%% @private
+%% @doc
+%% Initializes the server
+%%
+%% @spec init(Args) -> {ok, State} |
+%%                     {ok, State, Timeout} |
+%%                     ignore |
+%%                     {stop, Reason}
+%% @end
+%%--------------------------------------------------------------------
+init([]) ->
+    {ok, DisplayType} = application:get_env(matrix_controller, display_type),
+    io:format("Current display type is: ~w~n", [DisplayType]),
+    {ok, Handle} = spi_interface:open_spi_bus(get_ce_pin(DisplayType)),
+    ok = set_initial_register_values(Handle, DisplayType),
+    clear(Handle, DisplayType),
+    {ok, #state{display_type=DisplayType, spi_handle=Handle}}.
+
+%%--------------------------------------------------------------------
+%% @private
+%% @doc
+%% Handling call messages
+%%
+%% @spec handle_call(Request, From, State) ->
+%%                                   {reply, Reply, State} |
+%%                                   {reply, Reply, State, Timeout} |
+%%                                   {noreply, State} |
+%%                                   {noreply, State, Timeout} |
+%%                                   {stop, Reason, Reply, State} |
+%%                                   {stop, Reason, State}
+%% @end
+%%--------------------------------------------------------------------
+handle_call(clear, _From, State) ->
+    Reply = clear(State#state.spi_handle, State#state.display_type),
+    {reply, Reply, State};
+handle_call({Function, Points}, _From,
+	    #state{display_type=DisplayType, spi_handle=SpiHandle}=State) ->
+    io:format("Preparing to call function: ~w~n", [Function]),
+    PointList = case DisplayType of
+		    double_matrix -> Points;
+		    colour_matrix ->
+			[{Coordinate, get_colour(ColourIndex)}
+			 || {Coordinate, ColourIndex} <- Points]
+		end,
+    Reply = ?MODULE:Function(SpiHandle, DisplayType, PointList),
+    io:format("done~n"),
+    {reply, Reply, State};
+handle_call(stop, _From, State) ->
+    {stop, normal, ok, State}.
+
+%%--------------------------------------------------------------------
+%% @private
+%% @doc
+%% Handling cast messages
+%%
+%% @spec handle_cast(Msg, State) -> {noreply, State} |
+%%                                  {noreply, State, Timeout} |
+%%                                  {stop, Reason, State}
+%% @end
+%%--------------------------------------------------------------------
+handle_cast(_Msg, State) ->
+    {noreply, State}.
+
+%%--------------------------------------------------------------------
+%% @private
+%% @doc
+%% Handling all non call/cast messages
+%%
+%% @spec handle_info(Info, State) -> {noreply, State} |
+%%                                   {noreply, State, Timeout} |
+%%                                   {stop, Reason, State}
+%% @end
+%%--------------------------------------------------------------------
+handle_info(_Info, State) ->
+    {noreply, State}.
+
+%%--------------------------------------------------------------------
+%% @private
+%% @doc
+%% This function is called by a gen_server when it is about to
+%% terminate. It should be the opposite of Module:init/1 and do any
+%% necessary cleaning up. When it returns, the gen_server terminates
+%% with Reason. The return value is ignored.
+%%
+%% @spec terminate(Reason, State) -> void()
+%% @end
+%%--------------------------------------------------------------------
+terminate(_Reason, #state{spi_handle=SpiHandle}) ->
+    ok = spi_interface:close_spi_bus(SpiHandle).
+
+%%--------------------------------------------------------------------
+%% @private
+%% @doc
+%% Convert process state when code is changed
+%%
+%% @spec code_change(OldVsn, State, Extra) -> {ok, NewState}
+%% @end
+%%--------------------------------------------------------------------
+code_change(_OldVsn, State, _Extra) ->
+    {ok, State}.
+
+%%%===================================================================
+%%% Internal functions
+%%%===================================================================
 
 %% Function display takes a list of points and converts it to
 %% picture data which is then displayed on the matrix.
@@ -41,17 +198,17 @@ animate(SpiHandle, DisplayType, PointList) ->
 			Picture
 		end, EmptyPicture, PointList).
 
-%% teardown makes sure the spi bus is freed
-teardown(Handle) ->
-    ok = spi_interface:close_spi_bus(Handle).
-
-%%=========================================================
-
-
-%%=========================================================
-%%  Internal functions
-%%=========================================================
-
+%% Clear clears the matrix by writing zeroes to all display registers
+clear(SpiHandle, colour_matrix) ->
+    lists:foreach(fun (N) ->
+			  spi_write(SpiHandle, (16#20 + N), 0)
+		  end, lists:seq(0, 15)),
+    ok;
+clear(SpiHandle, double_matrix) ->
+    lists:foreach(fun (N) ->
+			  spi_write(SpiHandle, N, 0, 0)
+		  end, lists:seq(1, 8)),
+    ok.
 
 %% This function updates a tuple in a property list through
 %% an update function. The value of the element with key
@@ -69,6 +226,14 @@ keyupdate(Key, [First | Rest], Fun, SearchedList) ->
     %% key not found yet, continue searching
     keyupdate(Key, Rest, Fun, [First | SearchedList]).
 
+%% This function makes sure a colour is always one of "röd", "grön", "orange"
+%% When getting "a fake unicode string", we need to convert to proper unicode
+get_colour(String) when is_list(String) ->
+    NewString = unicode:characters_to_list(list_to_binary(String)),
+    string:to_lower(NewString);
+get_colour(1) -> "röd";
+get_colour(2) -> "grön";
+get_colour(3) -> "orange".
     
 %%---------------------------------------------------------
 %%  SPI functions
@@ -98,6 +263,21 @@ spi_write(Handle, Register, Value1, Value2) when is_integer(Register),
     spi_interface:transfer_spi_data(Handle, [Register, Value1,
 					     Register, Value2]).
 
+get_initial_register_values(colour_matrix) ->
+    RegValues0 = [#register_value{register = Address, value = 0}
+		  || Address <- lists:seq(16#20, 16#2F)],
+    [#register_value{register = 1, value = 0} | RegValues0]
+	++ [#register_value{register = 4, value = 1, add = true}];
+get_initial_register_values(double_matrix) ->
+    [#register_value{register = 16#9, value = 0},
+     #register_value{register = 16#a, value = 3},
+     #register_value{register = 16#b, value = 7},
+     #register_value{register = 16#c, value = 1},
+     #register_value{register = 16#f, value = 0}].
+
+get_ce_pin(colour_matrix) -> 8;
+get_ce_pin(double_matrix) -> 24.
+
 %% Setting a register value for a colour matrix, single device.
 %% Adding a value to a previous means setting some additional bits. 
 set_register_value(Handle, colour_matrix,
@@ -118,6 +298,9 @@ set_register_value(Handle, double_matrix,
 
 %% Setting the initial register values of the device(s).
 %% Do simple recursion over the data.
+set_initial_register_values(Handle, DisplayType) ->
+    InitialRegisterValues = get_initial_register_values(DisplayType),
+    set_initial_register_values(Handle, DisplayType, InitialRegisterValues).
 set_initial_register_values(_Handle, _DisplayType, []) ->
     ok;
 set_initial_register_values(Handle, DisplayType, [First | Rest]) ->

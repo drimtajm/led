@@ -4,7 +4,6 @@
 
 
 out(A) ->
-
     Peer = A#arg.client_ip_port,
     Req = A#arg.req,
     H = yaws_api:reformat_header(A#arg.headers),
@@ -12,14 +11,12 @@ out(A) ->
     [{Command, Data}] = PostData,
     {ok, Hostname} = inet:gethostname(),
     Nodename = lists:concat(["led_server@", Hostname]),
-    {code_receiver,
-       list_to_atom(Nodename)} ! {list_to_atom(Command), Data},
+    gen_server:call({code_receiver, list_to_atom(Nodename)},
+    	            {list_to_atom(Command), Data}, infinity),
     {ehtml,
      [{pre,[],  lists:map(fun ({Var, Val}) -> 
                     f("var ~p has val ~p~n", [Var, Val])
                 end, PostData)}]}.
 
 </erl>
-
-
 
