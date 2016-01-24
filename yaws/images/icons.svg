@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="icons.svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.80584733"
+     inkscape:cx="398.96525"
+     inkscape:cy="686.63283"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:snap-grids="true"
+     inkscape:window-width="1290"
+     inkscape:window-height="912"
+     inkscape:window-x="104"
+     inkscape:window-y="104"
+     inkscape:window-maximized="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2987" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="145,925"
+       id="guide3777" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="195,925"
+       id="guide3779" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="65,955"
+       id="guide3781" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="495,890"
+       id="guide3783" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="260,975"
+       id="guide3785" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="210,970"
+       id="guide3787" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       style="fill:#ffff00;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 100,97.362183 -25,24.999997 15,0 0,30 20,0 0,-30 15,0 z"
+       id="path2989"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccc"
+       inkscape:export-filename="C:\Repos\led\yaws\images\uparrow.png"
+       inkscape:export-xdpi="49.125801"
+       inkscape:export-ydpi="49.125801" />
+    <path
+       style="fill:#ffff00;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 170,152.36218 25,-25 -15,0 0,-29.999999 -20,0 0,29.999999 -15,0 z"
+       id="path2989-2"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccc"
+       inkscape:export-filename="C:\Repos\led\yaws\images\downarrow.png"
+       inkscape:export-xdpi="49.125801"
+       inkscape:export-ydpi="49.125801" />
+    <path
+       style="fill:#ff0000;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 220,97.362183 -10,9.999997 20,20 -20,20 10,10 20,-20 20,20 10,-10 -20,-20 20,-20 -10,-9.999997 -20,19.999997 z"
+       id="path3801"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccccccccc"
+       inkscape:export-filename="C:\Repos\led\yaws\images\redcross.png"
+       inkscape:export-xdpi="45.709999"
+       inkscape:export-ydpi="45.709999" />
+    <path
+       style="fill:#008000;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 315,102.36218 0,20 -20,0 0,0 0,15 20,0 0,20 15,0 0,-20 20,0 0,-15 -20,0 0,-20 z"
+       id="path3803"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccccccccc"
+       inkscape:export-filename="C:\Repos\led\yaws\images\plus.png"
+       inkscape:export-xdpi="49.66"
+       inkscape:export-ydpi="49.66" />
+    <path
+       style="fill:#ffff00;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 385,107.36218 -15,15 35,35 15,-15 z"
+       id="path3807"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="C:\Repos\led\yaws\images\brush.png"
+       inkscape:export-xdpi="45.279999"
+       inkscape:export-ydpi="45.279999" />
+    <path
+       style="fill:#ff0000;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 385,107.36218 35,35 c 0,0 0,0 5,-5 5,-5 -5,-20 -5,-20 0,0 5,-4.99999 10,-10 5,-5 -5,-14.999997 -10,-9.999997 -5,4.999997 -10,9.999997 -10,9.999997 0,0 -15,-9.999997 -20,-5 z"
+       id="path3805"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccscssccc"
+       inkscape:export-filename="C:\Repos\led\yaws\images\brush.png"
+       inkscape:export-xdpi="45.279999"
+       inkscape:export-ydpi="45.279999" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 375,127.36218 13,-13"
+       id="path3809"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="C:\Repos\led\yaws\images\brush.png"
+       inkscape:export-xdpi="45.279999"
+       inkscape:export-ydpi="45.279999" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path3811"
+       d="m 380,132.36218 13,-13"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       inkscape:export-filename="C:\Repos\led\yaws\images\brush.png"
+       inkscape:export-xdpi="45.279999"
+       inkscape:export-ydpi="45.279999" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 385,137.36218 13,-13"
+       id="path3815"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="C:\Repos\led\yaws\images\brush.png"
+       inkscape:export-xdpi="45.279999"
+       inkscape:export-ydpi="45.279999" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path3817"
+       d="m 390,142.36218 13,-13"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       inkscape:export-filename="C:\Repos\led\yaws\images\brush.png"
+       inkscape:export-xdpi="45.279999"
+       inkscape:export-ydpi="45.279999" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 395,147.36218 13,-13"
+       id="path3819"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="C:\Repos\led\yaws\images\brush.png"
+       inkscape:export-xdpi="45.279999"
+       inkscape:export-ydpi="45.279999" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path3821"
+       d="m 400,152.36218 13,-13"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       inkscape:export-filename="C:\Repos\led\yaws\images\brush.png"
+       inkscape:export-xdpi="45.279999"
+       inkscape:export-ydpi="45.279999" />
+    <path
+       sodipodi:nodetypes="cccccc"
+       inkscape:connector-curvature="0"
+       id="path3837"
+       d="m 470,142.36218 0,-40 25,0 15,15 0,25 z"
+       style="fill:#f5f5f5;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       inkscape:export-filename="C:\Repos\led\yaws\images\copy.png"
+       inkscape:export-xdpi="49.639999"
+       inkscape:export-ydpi="49.639999" />
+    <path
+       sodipodi:nodetypes="ccc"
+       inkscape:connector-curvature="0"
+       id="path3839"
+       d="m 495,102.36218 0,15 15,0"
+       style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       inkscape:export-filename="C:\Repos\led\yaws\images\copy.png"
+       inkscape:export-xdpi="49.639999"
+       inkscape:export-ydpi="49.639999" />
+    <path
+       style="fill:#c0c0c0;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 455,117.36218 25,0 15,15 0,25 -40,0 z"
+       id="path3827"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccc"
+       inkscape:export-filename="C:\Repos\led\yaws\images\copy.png"
+       inkscape:export-xdpi="49.639999"
+       inkscape:export-ydpi="49.639999" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 480,117.36218 0,15 15,0"
+       id="path3835"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="C:\Repos\led\yaws\images\copy.png"
+       inkscape:export-xdpi="49.639999"
+       inkscape:export-ydpi="49.639999" />
+    <path
+       inkscape:export-ydpi="54.816231"
+       inkscape:export-xdpi="54.816231"
+       inkscape:export-filename="C:\Repos\led\yaws\images\new.png"
+       sodipodi:nodetypes="cccccc"
+       inkscape:connector-curvature="0"
+       id="path3841"
+       d="m 535,117.36218 25,0 15,15 0,25 -40,0 z"
+       style="fill:#ffffff;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <path
+       inkscape:export-ydpi="54.816231"
+       inkscape:export-xdpi="54.816231"
+       inkscape:export-filename="C:\Repos\led\yaws\images\new.png"
+       sodipodi:nodetypes="ccc"
+       inkscape:connector-curvature="0"
+       id="path3843"
+       d="m 560,117.36218 0,15 15,0"
+       style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 573,107.36218 0,16"
+       id="path3845"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="C:\Repos\led\yaws\images\new.png"
+       inkscape:export-xdpi="54.816231"
+       inkscape:export-ydpi="54.816231" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 565,115.36218 16,0"
+       id="path3847"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="C:\Repos\led\yaws\images\new.png"
+       inkscape:export-xdpi="54.816231"
+       inkscape:export-ydpi="54.816231" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#619dff;fill-opacity:1;stroke:#000000;stroke-width:2.23958414;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="path3853"
+       sodipodi:cx="610"
+       sodipodi:cy="122.36218"
+       sodipodi:rx="20"
+       sodipodi:ry="20"
+       d="m 590.00209,122.07313 a 20,20 0 1 1 -0.002,0.22134"
+       sodipodi:start="3.1560457"
+       sodipodi:end="9.4281637"
+       sodipodi:open="true"
+       transform="matrix(1.3395344,0,0,1.3395344,-200.32532,-34.755472)"
+       inkscape:export-filename="C:\Repos\led\yaws\images\info.png"
+       inkscape:export-xdpi="50.919876"
+       inkscape:export-ydpi="50.919876" />
+    <text
+       xml:space="preserve"
+       style="font-size:53.58137894000000000px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:Sans"
+       x="607.59448"
+       y="147.36218"
+       id="text3849"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="C:\Repos\led\yaws\images\info.png"
+       inkscape:export-xdpi="50.919876"
+       inkscape:export-ydpi="50.919876"><tspan
+         sodipodi:role="line"
+         id="tspan3851"
+         x="607.59448"
+         y="147.36218"
+         style="font-size:53.58137894000000000px;font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:Palatino Linotype;-inkscape-font-specification:Palatino Linotype Bold Italic">i</tspan></text>
+  </g>
+</svg>

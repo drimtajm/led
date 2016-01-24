@@ -37,6 +37,7 @@
             $('#jqxTextArea').jqxTextArea({ placeHolder: "", minLength: 1});
             $('#jqxTextArea').jqxTextArea('val', createProgram());
             $("#clearall").on('click', clearAll);
+            $("#new").on('click', newPicture);
             $("#copy").on('click', cloneCurrentPicture);
             $("#delete").on('click', deleteCurrentPicture);
             $("#drawtools").jqxButtonGroup({ mode: 'radio' });
@@ -71,7 +72,7 @@
                         freeline_color = args.index + 1;
                     }
                 });
-            $("#showorder").jqxToggleButton({height:"40px", width:"40px"});
+            $("#showorder").jqxToggleButton({height:"45px", width:"45px"});
             $("#showorder").on('click', function() {
                 var toggled = $("#showorder").jqxToggleButton('toggled');
                 showAnimationOrder(toggled);
@@ -229,7 +230,7 @@
                     <div style="float:left">&nbsp;&nbsp;</div>
                     <div id='colorselection' style="float:left"></div>
                     <div style="float:left">&nbsp;&nbsp;</div>
-                    <button id="showorder">1...</button>
+                    <button id="showorder"><img src="images/info.png"></button>
                 </div>
             </div>
             <div class="row">
@@ -242,9 +243,10 @@
             </div>
             <div class="row">
                 <div class="col-12" >
-                    <button id="clearall" type="button">Rensa bild</button>
-                    <button id="copy" type="button">Kopiera bild</button>
-                    <button id="delete" type="button">Ta bort bild</button>
+                    <button id="new" type="button"><img src="images/new.png"></button>
+                    <button id="copy" type="button"><img src="images/copy.png"></button>
+                    <button id="delete" type="button"><img src="images/redcross.png"></button>
+                    <button id="clearall" type="button"><img src="images/brush.png"></button>
                 </div>
             </div>
         </div>
@@ -254,10 +256,10 @@
             </div>
             <div class="row">
                 <div class="col-12">
-                    <button id="addstep">Ny rad</button>
-                    <button id="delstep">Ta bort rad</button>
-                    <button id="upstep">Rad upp</button>
-                    <button id="downstep">Rad ner</button>
+                    <button id="addstep"><img src="images/plus.png"></button>
+                    <button id="delstep"><img src="images/redcross.png"></button>
+                    <button id="upstep"><img src="images/uparrow.png"></button>
+                    <button id="downstep"><img src="images/downarrow.png"></button>
                 </div>
             </div>
         </div>

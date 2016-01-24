@@ -280,13 +280,26 @@ function clearAll() {
     currentPicture.clear();
 }
 
-function cloneCurrentPicture() {
-    var npic = currentPicture.duplicate();
+function addAndSelectPicture(npic) {
     pictures.push(npic);
     createNewMini(npic);
     npic.observe(progObserver);
     progObserver.refresh();
     switchCurrentPicture(npic);
+}
+
+function newPicture() {
+    var npic = new Picture();
+    addAndSelectPicture(npic);
+    addNewStep(npic);
+    $("#programPanel").jqxDataTable('updateBoundData');
+}
+
+function cloneCurrentPicture() {
+    var npic = currentPicture.duplicate();
+    addAndSelectPicture(npic);
+    addNewStep(npic);
+    $("#programPanel").jqxDataTable('updateBoundData');
 }
 
 function deleteCurrentPicture() {
@@ -314,13 +327,17 @@ function setColor(elementId, color) {
     currentPicture.setPixel(elementId, color);
 }
 
+function addNewStep(pic) {
+    var step = new ProgramStep();
+    step.pictureId = pic.id;
+    step.time = 2;
+    step.action = 'Visa';
+    pgmSource.push(step);
+}
+
 function createNewProgramStep() {
     if (selectedRow == null) {
-        var step = new ProgramStep();
-        step.pictureId = currentPicture.id;
-        step.time = 2;
-        step.action = 'Visa';
-        pgmSource.push(step);
+        addNewStep(currentPicture);
     }
     else {
         var clone = pgmSource[selectedRow].duplicate();
