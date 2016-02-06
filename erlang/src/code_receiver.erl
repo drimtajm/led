@@ -87,7 +87,7 @@ handle_call({code, Code}, _From, State) ->
     file:write_file(?FILENAME, Code),
     {reply, Reply, State};
 handle_call(go, From, State) ->
-    io:format("Reading save file (~w)...", [?FILENAME]),
+    io:format("Reading save file (~p)...", [?FILENAME]),
     case file:read_file(?FILENAME) of
 	{error, enoent} ->
 	    io:format("error, not found.~n"),

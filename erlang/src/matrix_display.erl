@@ -14,7 +14,7 @@
 %% API
 -export([start_link/0, stop/0, clear/0, display/2, animate/2]).
 %% Internal exports
--export([display/3, animate/3]).
+-export([display/3, animate/4]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -58,10 +58,10 @@ display(Points, WaitTime) ->
 
 %% Displays points on a matrix display, one point at a time
 animate(Points, WaitTime) ->
-    call_server(animate, Points, WaitTime).
+    call_server(animate, {Points, sakta}, WaitTime).
 
-call_server(Function, Points, WaitTimeInSeconds) ->
-    Reply = gen_server:call(?SERVER, {Function, Points}, ?TIMEOUT),
+call_server(Function, Args, WaitTimeInSeconds) ->
+    Reply = gen_server:call(?SERVER, {Function, Args}, ?TIMEOUT),
     WaitTimeInMilliseconds = trunc(WaitTimeInSeconds * 1000),
     timer:sleep(WaitTimeInMilliseconds),
     io:format("display done~n"),
@@ -107,16 +107,24 @@ init([]) ->
 handle_call(clear, _From, State) ->
     Reply = clear(State#state.spi_handle, State#state.display_type),
     {reply, Reply, State};
-handle_call({Function, Points}, _From,
+handle_call({Function, Args}, _From,
 	    #state{display_type=DisplayType, spi_handle=SpiHandle}=State) ->
     io:format("Preparing to call function: ~w~n", [Function]),
+    {Points, ExtraArg} = if (is_tuple(Args)) -> Args;
+			    true -> {Args, undefined}
+			 end,
     PointList = case DisplayType of
 		    double_matrix -> Points;
 		    colour_matrix ->
 			[{Coordinate, get_colour(ColourIndex)}
 			 || {Coordinate, ColourIndex} <- Points]
 		end,
-    Reply = ?MODULE:Function(SpiHandle, DisplayType, PointList),
+    Reply = case ExtraArg of
+		undefined ->
+		    ?MODULE:Function(SpiHandle, DisplayType, PointList);
+		_Else ->
+		    ?MODULE:Function(SpiHandle,DisplayType,PointList,ExtraArg)
+	    end,
     io:format("done~n"),
     {reply, Reply, State};
 handle_call(stop, _From, State) ->
@@ -190,12 +198,16 @@ display(SpiHandle, DisplayType, PointList) ->
 %% picture containing all given points.
 %% The order of the points is preserved and the partial pictures are
 %% shown with an interval of 20 milliseconds.
-animate(SpiHandle, DisplayType, PointList) ->
+animate(SpiHandle, DisplayType, PointList, Speed) ->
     EmptyPicture = get_empty_picture(DisplayType),
     lists:foldl(fun (Point, Picture0) ->
 			Picture = add_points_to_picture([Point], Picture0),
 			display_picture(SpiHandle, Picture),
-			timer:sleep(20),
+			case Speed of
+			    sakta -> timer:sleep(50);
+			    mittemellan -> timer:sleep(20);
+			    snabbt -> timer:sleep(10)
+			end,
 			Picture
 		end, EmptyPicture, PointList).
 
