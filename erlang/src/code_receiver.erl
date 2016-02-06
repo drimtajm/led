@@ -20,6 +20,7 @@
 
 -define(SERVER, ?MODULE).
 -define(FILENAME, "led_matrix_code.bin").
+-define(TIMEOUT, infinity).
 
 -record(state, {bindings}).
 
@@ -39,7 +40,7 @@ start_link() ->
     gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 
 stop() ->
-    gen_server:call(?SERVER, {close, undefined}).
+    gen_server:call(?SERVER, {close, undefined}, ?TIMEOUT).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -86,16 +87,26 @@ handle_call({code, Code}, _From, State) ->
     file:write_file(?FILENAME, Code),
     {reply, Reply, State};
 handle_call(go, From, State) ->
+    io:format("Reading save file (~w)...", [?FILENAME]),
     case file:read_file(?FILENAME) of
-	{error, enoent} -> {reply, noop, State};
+	{error, enoent} ->
+	    io:format("error, not found.~n"),
+	    {reply, noop, State};
 	{ok, Bin} ->
-	    Reply = handle_code(Bin, State),
+	    io:format("done.~n"),
+	    Reply = handle_code(binary_to_list(Bin), State),
 	    gen_server:reply(From, Reply),
 	    {ok, NextPi} = application:get_env(matrix_controller, next_pi),
 	    case NextPi of
-		undefined -> done;
-		_Else -> 
-		    gen_server:call({?SERVER, get_node_name(NextPi)}, go)
+		undefined ->
+		    io:format("Finished!~n"),
+		    done;
+		_Else ->
+		    io:format("Handing over to: ~w~n", [NextPi]),
+		    RemoteReply = gen_server:call({?SERVER,
+						   get_node_name(NextPi)}, go,
+						  ?TIMEOUT),
+		    io:format("Remote node replied: ~w~n", [RemoteReply])
 	    end,
 	    {noreply, State}
     end;
@@ -170,5 +181,5 @@ handle_code(Code, #state{bindings=Bindings}) ->
     ok.
 
 get_node_name(RemoteHost) ->
-    list_to_atom(lists:concat([atom_to_list(?SERVER), "@",
+    list_to_atom(lists:concat([atom_to_list(led_server), "@",
 			       atom_to_list(RemoteHost)])).

@@ -21,6 +21,7 @@
 	 terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
+-define(TIMEOUT, infinity).
 
 -record(state, {spi_handle, display_type}).
 
@@ -45,11 +46,11 @@ start_link() ->
     gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 
 stop() ->
-    gen_server:call(?SERVER, stop).
+    gen_server:call(?SERVER, stop, ?TIMEOUT).
 
 %% Clears a matrix display
 clear() ->
-    ok = gen_server:call(?SERVER, clear).
+    ok = gen_server:call(?SERVER, clear, ?TIMEOUT).
 
 %% Displays points on a matrix display
 display(Points, WaitTime) ->
@@ -60,7 +61,7 @@ animate(Points, WaitTime) ->
     call_server(animate, Points, WaitTime).
 
 call_server(Function, Points, WaitTimeInSeconds) ->
-    Reply = gen_server:call(?SERVER, {Function, Points}),
+    Reply = gen_server:call(?SERVER, {Function, Points}, ?TIMEOUT),
     WaitTimeInMilliseconds = trunc(WaitTimeInSeconds * 1000),
     timer:sleep(WaitTimeInMilliseconds),
     io:format("display done~n"),
