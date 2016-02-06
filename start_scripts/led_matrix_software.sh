@@ -1,10 +1,10 @@
 #! /bin/sh
 ### BEGIN INIT INFO
-# Provides:          Led matrix software
-# Required-Start:
+# Provides:          Led_matrix_software
+# Required-Start: $all
 # Required-Stop:
-# Default-Start:     3
-# Default-Stop:      1
+# Default-Start: 2 3 4 5
+# Default-Stop:  0 1 6
 # Short-Description: Start led matrix controller node and yaws
 # Description:       Start an Erlang node that runs led matrix controller code
 #                    and the yaws web server (which will start another node)
@@ -15,10 +15,11 @@ RPI_HW_DRIVERS_EBIN_DIR=$HOME/workspace/erlang-rpi-hw-drivers/ebin
 LED_MATRIX_CODE_EBIN_DIR=$HOME/workspace/led/erlang/ebin
 APPLICATION_NAME=matrix_controller
 DISPLAY_TYPE=colour_matrix
-NEXT_PI=pepparkakehus
+NEXT_PI=sandbox
 YAWS_ARGS="--sname yaws --setcookie \"erlang-rocks\"" 
 INIT_STOP_CALL="rpc:call(list_to_atom(Nodename), init, stop, [])"
 MATRIX_CONTROLLER_STOP_CALL="rpc:call(list_to_atom(Nodename), matrix_controller_sup, stop, []), ${INIT_STOP_CALL}"
+PATH=/usr/local/bin:${PATH}
 
 log() {
     echo `date` " $1" >>  /var/log/led_matrix_controller.log

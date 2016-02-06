@@ -1,7 +1,7 @@
 %% coding: utf-8
 %%%-------------------------------------------------------------------
 %%% @author  drimtajm
-%%% @copyright (C) 2016, 
+%%% @copyright (C) 2016,
 %%% @doc
 %%%
 %%% @end
@@ -22,6 +22,9 @@
 
 -define(SERVER, ?MODULE).
 -define(TIMEOUT, infinity).
+-define(INTERVAL_SLOW, 50).
+-define(INTERVAL_MEDIUM, 25).
+-define(INTERVAL_FAST, 10).
 
 -record(state, {spi_handle, display_type}).
 
@@ -58,7 +61,7 @@ display(Points, WaitTime) ->
 
 %% Displays points on a matrix display, one point at a time
 animate(Points, WaitTime) ->
-    call_server(animate, {Points, sakta}, WaitTime).
+    call_server(animate, {Points, snabbt}, WaitTime).
 
 call_server(Function, Args, WaitTimeInSeconds) ->
     Reply = gen_server:call(?SERVER, {Function, Args}, ?TIMEOUT),
@@ -109,7 +112,7 @@ handle_call(clear, _From, State) ->
     {reply, Reply, State};
 handle_call({Function, Args}, _From,
 	    #state{display_type=DisplayType, spi_handle=SpiHandle}=State) ->
-    io:format("Preparing to call function: ~w~n", [Function]),
+    io:format("Preparing to call function: ~w...", [Function]),
     {Points, ExtraArg} = if (is_tuple(Args)) -> Args;
 			    true -> {Args, undefined}
 			 end,
@@ -204,9 +207,9 @@ animate(SpiHandle, DisplayType, PointList, Speed) ->
 			Picture = add_points_to_picture([Point], Picture0),
 			display_picture(SpiHandle, Picture),
 			case Speed of
-			    sakta -> timer:sleep(50);
-			    mittemellan -> timer:sleep(20);
-			    snabbt -> timer:sleep(10)
+			    sakta -> timer:sleep(?INTERVAL_SLOW);
+			    mittemellan -> timer:sleep(?INTERVAL_MEDIUM);
+			    snabbt -> timer:sleep(?INTERVAL_FAST)
 			end,
 			Picture
 		end, EmptyPicture, PointList).
