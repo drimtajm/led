@@ -14,7 +14,8 @@ export HOME=/home/pi
 RPI_HW_DRIVERS_EBIN_DIR=$HOME/workspace/erlang-rpi-hw-drivers/ebin
 LED_MATRIX_CODE_EBIN_DIR=$HOME/workspace/led/erlang/ebin
 APPLICATION_NAME=matrix_controller
-DISPLAY_TYPE=double_matrix
+DISPLAY_TYPE=colour_matrix
+NEXT_PI=pepparkakehus
 YAWS_ARGS="--sname yaws --setcookie \"erlang-rocks\"" 
 INIT_STOP_CALL="rpc:call(list_to_atom(Nodename), init, stop, [])"
 MATRIX_CONTROLLER_STOP_CALL="rpc:call(list_to_atom(Nodename), matrix_controller_sup, stop, []), ${INIT_STOP_CALL}"
@@ -28,6 +29,7 @@ led_matrix_controller_start () {
     erl -pa $RPI_HW_DRIVERS_EBIN_DIR -pa $LED_MATRIX_CODE_EBIN_DIR \
 	-sname led_server -setcookie "erlang-rocks" -noinput \
 	-$APPLICATION_NAME display_type $DISPLAY_TYPE \
+	-$APPLICATION_NAME next_pi $NEXT_PI \
 	-s $APPLICATION_NAME >> /var/log/led_matrix_controller.log 2>&1 &
 }
 

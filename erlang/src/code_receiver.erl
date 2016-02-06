@@ -19,6 +19,7 @@
 	 terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
+-define(FILENAME, "led_matrix_code.bin").
 
 -record(state, {bindings}).
 
@@ -82,7 +83,22 @@ init([]) ->
 handle_call({code, Code}, _From, State) ->
     io:format("Received code.~n"),
     Reply = handle_code(Code, State),
+    file:write_file(?FILENAME, Code),
     {reply, Reply, State};
+handle_call(go, From, State) ->
+    case file:read_file(?FILENAME) of
+	{error, enoent} -> {reply, noop, State};
+	{ok, Bin} ->
+	    Reply = handle_code(Bin, State),
+	    gen_server:reply(From, Reply),
+	    {ok, NextPi} = application:get_env(matrix_controller, next_pi),
+	    case NextPi of
+		undefined -> done;
+		_Else -> 
+		    gen_server:call({?SERVER, get_node_name(NextPi)}, go)
+	    end,
+	    {noreply, State}
+    end;
 handle_call({close, undefined}, _From, State) ->
     io:format("Received close request.~n"),
     {stop, normal, ok, State}.
@@ -152,3 +168,7 @@ handle_code(Code, #state{bindings=Bindings}) ->
     erl_eval:exprs(ErlAbsForm,Bindings),
     matrix_display:clear(),
     ok.
+
+get_node_name(RemoteHost) ->
+    list_to_atom(lists:concat([atom_to_list(?SERVER), "@",
+			       atom_to_list(RemoteHost)])).
