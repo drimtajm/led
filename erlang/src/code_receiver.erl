@@ -19,7 +19,7 @@
 	 terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
--define(FILENAME, "led_matrix_code.bin").
+-define(FILENAME, "../led_matrix_code.bin").
 -define(TIMEOUT, infinity).
 
 -record(state, {bindings}).
