@@ -19,8 +19,12 @@
 	 terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
--define(FILENAME, "led_matrix_code.bin").
+-define(FILENAME, "../led_matrix_code.bin").
 -define(TIMEOUT, infinity).
+-define(PIN1, 23).
+-define(PIN2, 24).
+-define(PIN3, 25).
+-define(POLLINTERVAL, 100).
 
 -record(state, {bindings}).
 
@@ -64,7 +68,10 @@ init([]) ->
 				   Bindings0),
     Bindings2=erl_eval:add_binding('Animera', fun matrix_display:animate/2,
 				   Bindings1),
-
+    gpio:open_pin(?PIN1), gpio:set_input(?PIN1),
+    gpio:open_pin(?PIN2), gpio:set_input(?PIN2),
+    gpio:open_pin(?PIN3), gpio:set_input(?PIN3),
+    timer:send_after(?POLLINTERVAL, poll),
     {ok, #state{bindings=Bindings2}}.
 
 %%--------------------------------------------------------------------
@@ -86,30 +93,6 @@ handle_call({code, Code}, _From, State) ->
     Reply = handle_code(Code, State),
     file:write_file(?FILENAME, Code),
     {reply, Reply, State};
-handle_call(go, From, State) ->
-    io:format("Reading save file (~p)...", [?FILENAME]),
-    case file:read_file(?FILENAME) of
-	{error, enoent} ->
-	    io:format("error, not found.~n"),
-	    {reply, noop, State};
-	{ok, Bin} ->
-	    io:format("done.~n"),
-	    Reply = handle_code(binary_to_list(Bin), State),
-	    gen_server:reply(From, Reply),
-	    {ok, NextPi} = application:get_env(matrix_controller, next_pi),
-	    case NextPi of
-		undefined ->
-		    io:format("Finished!~n"),
-		    done;
-		_Else ->
-		    io:format("Handing over to: ~w~n", [NextPi]),
-		    RemoteReply = gen_server:call({?SERVER,
-						   get_node_name(NextPi)}, go,
-						  ?TIMEOUT),
-		    io:format("Remote node replied: ~w~n", [RemoteReply])
-	    end,
-	    {noreply, State}
-    end;
 handle_call({close, undefined}, _From, State) ->
     io:format("Received close request.~n"),
     {stop, normal, ok, State}.
@@ -137,7 +120,16 @@ handle_cast(_Msg, State) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_info(_Info, State) ->
+handle_info(poll, State) ->
+    case (gpio:read_pin(?PIN1)
+	  + gpio:read_pin(?PIN2)
+	  + gpio:read_pin(?PIN3)) of
+	N when N < 3 ->
+	    go(State);
+	_Else ->
+	    noop
+    end,
+    timer:send_after(?POLLINTERVAL, poll),
     {noreply, State}.
 
 %%--------------------------------------------------------------------
@@ -152,6 +144,9 @@ handle_info(_Info, State) ->
 %% @end
 %%--------------------------------------------------------------------
 terminate(_Reason, _State) ->
+    gpio:close_pin(?PIN3),
+    gpio:close_pin(?PIN2),
+    gpio:close_pin(?PIN1),
     ok.
 
 %%--------------------------------------------------------------------
@@ -183,3 +178,24 @@ handle_code(Code, #state{bindings=Bindings}) ->
 get_node_name(RemoteHost) ->
     list_to_atom(lists:concat([atom_to_list(led_server), "@",
 			       atom_to_list(RemoteHost)])).
+
+go(State) ->
+    io:format("Reading save file (~p)...", [?FILENAME]),
+    case file:read_file(?FILENAME) of
+	{error, enoent} ->
+	    io:format("error, not found.~n");
+	{ok, Bin} ->
+	    io:format("done.~n"),
+	    handle_code(binary_to_list(Bin), State),
+	    {ok, NextPi} = application:get_env(matrix_controller, next_pi),
+	    case NextPi of
+		undefined ->
+		    io:format("Finished!~n");
+		_Else ->
+		    io:format("Handing over to: ~w~n", [NextPi]),
+		    RemoteReply = gen_server:call({?SERVER,
+						   get_node_name(NextPi)}, go,
+						  ?TIMEOUT),
+		    io:format("Remote node replied: ~w~n", [RemoteReply])
+	    end
+    end.
