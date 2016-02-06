@@ -10,3 +10,5 @@ Remove previous version
 
 Install (runlevel set in script header)
 > sudo update-rc.d led_matrix_software.sh defaults
+
+Note: On Fedora, use chkconfig instead of update-rc.d
