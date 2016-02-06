@@ -4,7 +4,7 @@
 # Required-Start:
 # Required-Stop:
 # Default-Start:     3
-# Default-Stop:
+# Default-Stop:      1
 # Short-Description: Start led matrix controller node and yaws
 # Description:       Start an Erlang node that runs led matrix controller code
 #                    and the yaws web server (which will start another node)
