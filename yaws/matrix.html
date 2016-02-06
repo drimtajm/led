@@ -12,6 +12,8 @@
     <script type="text/javascript" src="jqwidgets/jqxtooltip.js"></script>
     <script type="text/javascript" src="jqwidgets/jqxtextarea.js"></script>
     <script type="text/javascript" src="jqwidgets/jqxbuttons.js"></script>
+    <script type="text/javascript" src="jqwidgets/jqxwindow.js"></script>
+    <script type="text/javascript" src="jqwidgets/jqxpanel.js"></script>
     <script type="text/javascript" src="jqwidgets/jqxscrollbar.js"></script>
     <script type="text/javascript" src="jqwidgets/jqxbuttongroup.js"></script>
     <script type="text/javascript" src="jqwidgets/jqxlistbox.js"></script>
@@ -30,7 +32,9 @@
     <script type="text/javascript">
         $(document).ready(function () {
             initAll();
-            $('#pictureCode').jqxTextArea({ placeHolder: "", minLength: 1});
+            $('#pictureCode').jqxTextArea({
+                placeHolder: "",
+                minLength: 1});
             $('#pictureCode').jqxTextArea('val', createPictureProgram(currentPicture));
             $('#programCode').jqxTextArea({ placeHolder: "", minLength: 1});
             $('#programCode').jqxTextArea('val', createProgramSteps());
@@ -199,12 +203,39 @@
             $("#upstep").click(function() {
                 moveSelectedRowUp();
                 $("#programPanel").jqxDataTable('updateBoundData');
-                $("#programPanel").jqxDataTable('selectRow', selectedRow);
+                if (selectedRow != null) $("#programPanel").jqxDataTable('selectRow', selectedRow);
             });
             $("#downstep").click(function() {
                 moveSelectedRowDown();
                 $("#programPanel").jqxDataTable('updateBoundData');
-                $("#programPanel").jqxDataTable('selectRow', selectedRow);
+                if (selectedRow != null) $("#programPanel").jqxDataTable('selectRow', selectedRow);
+            });
+            $("#templatesPanel").jqxPanel({ width: 400, height: 400});
+            var jqxWidget = $('#jqxWidget');
+            var offset = jqxWidget.offset();
+            $('#templateWindow').jqxWindow({
+                position: 'center',
+                autoOpen: false,
+                maxHeight: 800, maxWidth: 600, minHeight: 200, minWidth: 20, height: 500, width: 'auto',
+                resizable: false, isModal: true, modalOpacity: 0.3,
+                okButton: $('#ok'), cancelButton: $('#cancel'),
+                initContent: function () {
+                    $('#ok').jqxButton({ width: '65px' });
+                    $('#cancel').jqxButton({ width: '65px' });
+                    $('#ok').focus();
+                }
+            });
+            $("#jqxWidget").css('visibility', 'visible');
+            $('#templateWindow').on('close', function (event) {
+                if (event.args.dialogResult.OK) {
+                    addSelectedTemplate();
+                }
+            });
+            $('#showtemplates').mousedown(function () {
+                $('#templateWindow').jqxWindow('open');
+                $.getJSON('templates.json', function(data) {
+                    loadTemplates(data);
+                });
             });
         });
         
@@ -217,6 +248,20 @@
     </script>
 </head>
 <body class="default">
+    <div style="visibility: hidden;" id="jqxWidget">
+        <div id="templateWindow">
+            <div>Mallar</div>
+            <div>
+                <div id="templatesPanel"></div>
+                <div>
+                    <div style="float: right; margin-top: 15px;">
+                        <input type="button" id="ok" value="OK" style="margin-right: 10px" />
+                        <input type="button" id="cancel" value="Cancel" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="debug">-</div>
     <div class="row" style="display:flex">
         <div class="col-8" style="background-color:#FFF0F0">
@@ -244,6 +289,7 @@
             <div class="row">
                 <div class="col-12" >
                     <button id="new" type="button"><img src="images/new.png"></button>
+                    <button id="showtemplates"><img src="images/new_template.png"></button>
                     <button id="copy" type="button"><img src="images/copy.png"></button>
                     <button id="delete" type="button"><img src="images/redcross.png"></button>
                     <button id="clearall" type="button"><img src="images/brush.png"></button>
@@ -275,11 +321,11 @@
     <div style="width:100%; display: inline-block">
         <form id="form">
             <textarea name="code" id="jqxTextArea" style="height:100px; width:100%"></textarea>
-            <button type="button" onclick="submit_code()">Visa</button>
-	        <button type="button" onclick="shutdown_matrix()">Avsluta</button>
+            <button type="button" onclick="submit_code()"><img src="images/show.png"></button>
+	        <button type="button" onclick="shutdown_matrix()"><img src="images/exit.png"></button>
         </form>
         <button type="button" onclick="saveProgram()">Spara</button>
-        <button type="load" onclick="load()">Ladda</button>
+        <button type="button" onclick="load()">Ladda</button>
     </div>
 </body>
 </html>

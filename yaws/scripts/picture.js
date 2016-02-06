@@ -11,9 +11,20 @@ function pixelId(col, row) {
 }
 
 var nextPictureId = 1;
+
+function new_picture(temporary) {
+    var p = new Picture();
+    if (temporary) {
+        p.id = "temp";
+    } else {
+        p.id = 'Bild' + nextPictureId;
+        nextPictureId ++;
+    }
+    return p;
+}
+
 function Picture() {
-    this.id = 'Bild' + nextPictureId;
-    nextPictureId ++;
+    this.id = 'Bild';
     this.colors = {};
     this.order = [];
     this.listeners = [];
@@ -72,7 +83,7 @@ Picture.prototype.clear = function (pid, value) {
 }
 
 Picture.prototype.duplicate = function () {
-    var newPic = new Picture();
+    var newPic = new_picture(false);
     for (var pid in this.colors) {
         newPic.colors[pid] = this.colors[pid];
     }

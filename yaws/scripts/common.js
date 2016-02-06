@@ -1,9 +1,11 @@
 "use strict"
 var pictures = [
-    new Picture(),
-    new Picture()
+    new_picture(false),
+    new_picture(false)
 ]
+var templatePictures = []
 var currentPicture = pictures[0];
+var currentTemplatePicture = null;
 var main_up;
 var progObserver;
 var picProgObserver;
@@ -153,6 +155,8 @@ function updateMiniSelection() {
     }
 }
 
+
+
 function switchCurrentPicture(newPicture)
 {
     currentPicture.unobserve(main_up);
@@ -237,12 +241,72 @@ function saveProgram() {
     $('#debug').text(str);
 }
 
+function updateTemplateSelection() {
+    for (var index = 0; index < templatePictures.length; index++) {
+        var mid = '#template_mini_' + templatePictures[index].id;
+        var el = $(mid)
+        var color = '';
+        if (templatePictures[index] == currentTemplatePicture) {
+            color = 'lightgreen';
+        }
+        el.css('background-color', color);
+    }
+}
+
+function createTemplateMini(pic) {
+    var mid = "template_mini_" + pic.id;
+    $("#templatesPanel").jqxPanel('append', $('<div id="' + mid + '"></div>'));
+    var minielem = $("#" + mid);
+    minielem.css({'width' : MINIWIDTH,
+                      'height': '80px',
+                      'display' : 'inline-block'
+                     });
+    minielem.jqxDraw();
+    minielem.data('pic', pic);
+    var renderer2 = minielem.jqxDraw('getInstance');
+    var up = createMatrix(renderer2, false, pic.id, true, false);
+    up.refresh(pic);
+
+    minielem.on('click', function () {
+        currentTemplatePicture = $(this).data('pic');
+        updateTemplateSelection();
+    })
+}
+
+function loadTemplates(templates) {
+    templatePictures = [];
+    currentTemplatePicture = null;
+    var spics = templates['pictures'];
+    for (var i=0,l=spics.length; i < l; i++) {
+        var sp = spics[i];
+        var p = new_picture(true);
+        p.id = sp['id'];
+        var pixels = sp['pixels'];
+        for (var j=0; j < pixels.length; j++) {
+            p.setPixel(pixels[j][0], pixels[j][1]);
+        }
+        templatePictures.push(p)
+    }
+    $("#templatesPanel").jqxPanel('clearcontent');
+    for (var index = 0; index < templatePictures.length; index++) {
+        createTemplateMini(templatePictures[index]);
+    }
+}
+
+function addSelectedTemplate() {
+    if (currentTemplatePicture == null) return;
+    var npic = currentTemplatePicture.duplicate();
+    addAndSelectPicture(npic);
+    addNewStep(npic);
+    $("#programPanel").jqxDataTable('updateBoundData');
+}
+
 function loadProgram(savedPgm) {
     pictures = [];
     var spics = savedPgm['pictures'];
     for (var i=0,l=spics.length; i < l; i++) {
         var sp = spics[i];
-        var p = new Picture();
+        var p = new_picture(false);
         p.id = sp['id'];
         var pixels = sp['pixels'];
         for (var j=0; j < pixels.length; j++) {
@@ -289,7 +353,7 @@ function addAndSelectPicture(npic) {
 }
 
 function newPicture() {
-    var npic = new Picture();
+    var npic = new_picture(false);
     addAndSelectPicture(npic);
     addNewStep(npic);
     $("#programPanel").jqxDataTable('updateBoundData');
@@ -320,6 +384,7 @@ function deleteCurrentPicture() {
     $("#mini_" + currentPicture.id).remove();
     var nextCidx = Math.min(cidx, pictures.length - 1);
     switchCurrentPicture(pictures[nextCidx]);
+    progObserver.refresh();
     $("#programPanel").jqxDataTable('updateBoundData');
 }
 
@@ -336,14 +401,7 @@ function addNewStep(pic) {
 }
 
 function createNewProgramStep() {
-    if (selectedRow == null) {
-        addNewStep(currentPicture);
-    }
-    else {
-        var clone = pgmSource[selectedRow].duplicate();
-        pgmSource.push(clone);
-        selectedRow = null;
-    }
+    addNewStep(currentPicture);
 }
 
 function deleteSelectedRow() {
