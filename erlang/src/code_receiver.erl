@@ -84,11 +84,11 @@ init([]) ->
 handle_call({code, Code}, _From, State) ->
     io:format("Received code.~n"),
     Reply = handle_code(Code, State),
-    file:write_file(?FILENAME, Code),
+    file:write_file(get_filename_with_path(?FILENAME), Code),
     {reply, Reply, State};
 handle_call(go, From, State) ->
     io:format("Reading save file (~p)...", [?FILENAME]),
-    case file:read_file(?FILENAME) of
+    case file:read_file(get_filename_with_path(?FILENAME)) of
 	{error, enoent} ->
 	    io:format("error, not found.~n"),
 	    {reply, noop, State};
@@ -183,3 +183,6 @@ handle_code(Code, #state{bindings=Bindings}) ->
 get_node_name(RemoteHost) ->
     list_to_atom(lists:concat([atom_to_list(led_server), "@",
 			       atom_to_list(RemoteHost)])).
+
+get_filename_with_path(Filename) ->
+    filename:join(filename:dirname(code:which(?MODULE)), Filename).
