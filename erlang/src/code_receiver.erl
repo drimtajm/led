@@ -179,6 +179,9 @@ get_node_name(RemoteHost) ->
     list_to_atom(lists:concat([atom_to_list(led_server), "@",
 			       atom_to_list(RemoteHost)])).
 
+get_filename_with_path(Filename) ->
+        filename:join(filename:dirname(code:which(?MODULE)), Filename).
+
 go(State) ->
     io:format("Reading save file (~p)...", [?FILENAME]),
     case file:read_file(get_filename_with_path(?FILENAME)) of
