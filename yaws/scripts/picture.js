@@ -10,6 +10,13 @@ function pixelId(col, row) {
     return colId(col) + rowId(row);
 }
 
+function rowCol(pid) {
+    var col = pid.charCodeAt(0) - "A".charCodeAt(0);
+    var row = pid.charCodeAt(1) - "1".charCodeAt(0);
+    return [col, row];
+}
+
+
 var nextPictureId = 1;
 
 function new_picture(temporary) {
@@ -18,7 +25,7 @@ function new_picture(temporary) {
         p.id = "temp";
     } else {
         p.id = 'Bild' + nextPictureId;
-        nextPictureId ++;
+        nextPictureId++;
     }
     return p;
 }
@@ -82,16 +89,61 @@ Picture.prototype.clear = function (pid, value) {
     this.notify('ALL');
 }
 
+Picture.prototype._copy = function (picture) {
+    this._clear();
+    for (var pid in picture.colors) {
+        this.colors[pid] = picture.colors[pid];
+    }
+    for (var len = picture.order.length, i = 0; i < len; ++i) {
+        this.order.push(picture.order[i]);
+    }
+}
+
 Picture.prototype.duplicate = function () {
     var newPic = new_picture(false);
-    for (var pid in this.colors) {
-        newPic.colors[pid] = this.colors[pid];
-    }
-    for (var len = this.order.length, i=0; i<len; ++i) {
-        newPic.order.push(this.order[i]);
+    newPic._copy(this);
+    return newPic;
+}
+
+Picture.prototype.copyFrom = function (picture) {
+    this._copy(picture)
+    this.notify('ALL');
+}
+
+Picture.prototype._rotate_help = function (newOrder) {
+    this._clear();
+
+    for (var len = newOrder.length, i = 0; i < len; ++i) {
+        var pid = newOrder[i][0];
+        this.order.push(pid);
+        this.colors[pid] = newOrder[i][1];
     }
 
-    return newPic;
+    this.notify('ALL');
+}
+
+Picture.prototype.rotateHor = function (steps) {
+    var newOrder = []
+    for (var len = this.order.length, i = 0; i < len; ++i) {
+        var pid = this.order[i];
+        var pos = rowCol(pid);
+        if (steps < 0) steps += COLUMNS;
+        var col = (pos[0] + steps) % COLUMNS;
+        newOrder.push([pixelId(col, pos[1]), this.colors[pid]]);
+    }
+    this._rotate_help(newOrder);
+}
+
+Picture.prototype.rotateVer = function (steps) {
+    var newOrder = []
+    for (var len = this.order.length, i = 0; i < len; ++i) {
+        var pid = this.order[i];
+        var pos = rowCol(pid);
+        if (steps < 0) steps += ROWS;
+        var row = (pos[1] + steps) % ROWS;
+        newOrder.push([pixelId(pos[0], row), this.colors[pid]]);
+    }
+    this._rotate_help(newOrder);
 }
 
 function createTestImage(picture) {
