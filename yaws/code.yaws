@@ -4,19 +4,15 @@
 
 
 out(A) ->
-    Peer = A#arg.client_ip_port,
-    Req = A#arg.req,
-    H = yaws_api:reformat_header(A#arg.headers),
     PostData = yaws_api:parse_post(A),
-    [{Command, Data}] = PostData,
+    [{"code", Code}, {"data", SaveData}] = PostData,
+    c:cd(A#arg.docroot),
+    file:write_file(filename:join(["led", "saved.json"]), SaveData),
+
     {ok, Hostname} = inet:gethostname(),
     Nodename = lists:concat(["led_server@", Hostname]),
     gen_server:call({code_receiver, list_to_atom(Nodename)},
-    	            {list_to_atom(Command), Data}, infinity),
-    {ehtml,
-     [{pre,[],  lists:map(fun ({Var, Val}) -> 
-                    f("var ~p has val ~p~n", [Var, Val])
-                end, PostData)}]}.
+		    {code, Code}, infinity),
 
+    {html, f("<pre>Done </pre>",[])}.
 </erl>
-

@@ -23,8 +23,8 @@
     <script type="text/javascript" src="jqwidgets/jqxinput.js"></script>
     <script type="text/javascript" src="jqwidgets/jqxslider.js"></script>
 
-    <!-- <script type="text/javascript" src="scripts/monocolor_16x8.js"></script> -->
-    <script type="text/javascript" src="scripts/multicolor_8x8.js"></script>
+    <script type="text/javascript" src="scripts/monocolor_16x8.js"></script>
+    <!-- <script type="text/javascript" src="scripts/multicolor_8x8.js"></script> -->
     <script type="text/javascript" src="scripts/picture.js"></script>
     <script type="text/javascript" src="scripts/program.js"></script>
     <script type="text/javascript" src="scripts/common.js"></script>
@@ -390,6 +390,8 @@
             });
 
         }
+
+	load();
     </script>
 </head>
 
@@ -478,12 +480,12 @@
     <div id="codeStatus"></div>
     <div style="width:100%; display: inline-block">
         <button type="button" onclick="submit_code()"><img src="images/show.png"></button>
-        <button type="button" onclick="shutdown_matrix()"><img src="images/exit.png"></button>
+        <!-- <button type="button" onclick="shutdown_matrix()"><img src="images/exit.png"></button> -->
         <!-- <button type="button" onclick="saveProgram()">Spara</button> -->
         <button type="button" onclick="load()">Ladda</button>
         <form id="submit_form">
-            <textarea name="code" id="all_code" style="visibility: visible; height:100px; width:100%"></textarea>
-            <textarea name="data" id="saved_data" style="visibility: visible; height:100px; width:100%"></textarea>
+            <textarea name="code" id="all_code" style="visibility: hidden; height:100px; width:100%"></textarea>
+            <textarea name="data" id="saved_data" style="visibility: hidden; height:100px; width:100%"></textarea>
         </form>
         <div id="debug">-</div>
     </div>
