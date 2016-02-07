@@ -19,6 +19,8 @@
 	 terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
+-define(FILENAME, "../led_matrix_code.bin").
+-define(TIMEOUT, infinity).
 
 -record(state, {bindings}).
 
@@ -38,7 +40,7 @@ start_link() ->
     gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 
 stop() ->
-    gen_server:call(?SERVER, {close, undefined}).
+    gen_server:call(?SERVER, {close, undefined}, ?TIMEOUT).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -82,7 +84,32 @@ init([]) ->
 handle_call({code, Code}, _From, State) ->
     io:format("Received code.~n"),
     Reply = handle_code(Code, State),
+    file:write_file(get_filename_with_path(?FILENAME), Code),
     {reply, Reply, State};
+handle_call(go, From, State) ->
+    io:format("Reading save file (~p)...", [?FILENAME]),
+    case file:read_file(get_filename_with_path(?FILENAME)) of
+	{error, enoent} ->
+	    io:format("error, not found.~n"),
+	    {reply, noop, State};
+	{ok, Bin} ->
+	    io:format("done.~n"),
+	    Reply = handle_code(binary_to_list(Bin), State),
+	    gen_server:reply(From, Reply),
+	    {ok, NextPi} = application:get_env(matrix_controller, next_pi),
+	    case NextPi of
+		undefined ->
+		    io:format("Finished!~n"),
+		    done;
+		_Else ->
+		    io:format("Handing over to: ~w~n", [NextPi]),
+		    RemoteReply = gen_server:call({?SERVER,
+						   get_node_name(NextPi)}, go,
+						  ?TIMEOUT),
+		    io:format("Remote node replied: ~w~n", [RemoteReply])
+	    end,
+	    {noreply, State}
+    end;
 handle_call({close, undefined}, _From, State) ->
     io:format("Received close request.~n"),
     {stop, normal, ok, State}.
@@ -152,3 +179,10 @@ handle_code(Code, #state{bindings=Bindings}) ->
     erl_eval:exprs(ErlAbsForm,Bindings),
     matrix_display:clear(),
     ok.
+
+get_node_name(RemoteHost) ->
+    list_to_atom(lists:concat([atom_to_list(led_server), "@",
+			       atom_to_list(RemoteHost)])).
+
+get_filename_with_path(Filename) ->
+    filename:join(filename:dirname(code:which(?MODULE)), Filename).
