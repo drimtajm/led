@@ -16,19 +16,16 @@ var selectedRow = null;
 
 
 function submit_code() {
-    var code = $('#jqxTextArea').jqxTextArea('val');
-    $.post("code.yaws", $('#form').serialize(), function (data) {
+    saveProgram();
+    console.info($('#submit_form').serialize())
+    $.post("code.yaws", $('#submit_form').serialize(), function (data) {
             //alert(data)
         },
         "html");
 }
 
 function shutdown_matrix() {
-    $.post("code.yaws", "close", null,
-        //function( data ) {
-        //alert(data)
-        //},
-        "html");
+    $.post("code.yaws", "close", null, "html");
 }
 
 function createPictureProgram(picture) {
@@ -79,27 +76,26 @@ function createProgram() {
 }
 
 function ProgramUpdater() {
-    this.refresh = function(picture) {
-        $('#jqxTextArea').jqxTextArea('val', createProgram());
+    this.refresh = function (picture) {
+        $('#all_code').text(createProgram());
     }
-    
-    this.pictureChange = function(picture, what, who, value) {
-        $('#jqxTextArea').jqxTextArea('val', createProgram());
+
+    this.pictureChange = function (picture, what, who, value) {
+        this.refresh(picture);
     }
 }
 
 function PictureProgramUpdater() {
-    this.refresh = function(picture) {
-        $('#pictureCode').jqxTextArea('val', createPictureProgram(currentPicture));
+    this.refresh = function (picture) {
+        $('#pictureCode').val(createPictureProgram(picture));
     }
-    
-    this.pictureChange = function(picture, what, who, value) {
-        $('#pictureCode').jqxTextArea('val', createPictureProgram(currentPicture));
+
+    this.pictureChange = function (picture, what, who, value) {
+        this.refresh(picture);
     }
 }
 
-function initAll()
-{
+function initAll() {
     createTestImage(currentPicture);
     initMain();
     for (var index = 0; index < pictures.length; index++) {
@@ -112,12 +108,13 @@ function initAll()
     }
     picProgObserver = new PictureProgramUpdater();
     currentPicture.observe(picProgObserver);
+    picProgObserver.refresh(currentPicture);
     pgmArray = Array();
     pgmSource = new $.jqx.observableArray(pgmArray, function (changed) {
         $('#programCode').jqxTextArea('val', createProgramSteps());
         progObserver.refresh(currentPicture);
     });
-    
+
     for (var index = 0; index < pictures.length; index++) {
         var step = new ProgramStep();
         step.pictureId = pictures[index].id;
@@ -125,11 +122,10 @@ function initAll()
     }
 }
 
-function initMain()
-{
+function initMain() {
     //$("#container").css("width", COLUMNS*50);
     $("#container").css("width", "100%");
-    $("#container").css("height", ROWS*50);
+    $("#container").css("height", ROWS * 50);
     $("#container").jqxDraw();
     var renderer = $("#container").jqxDraw('getInstance');
     main_up = createMatrix(renderer, true, null, false, true);
@@ -157,8 +153,7 @@ function updateMiniSelection() {
 
 
 
-function switchCurrentPicture(newPicture)
-{
+function switchCurrentPicture(newPicture) {
     currentPicture.unobserve(main_up);
     currentPicture.unobserve(picProgObserver);
 
@@ -169,7 +164,7 @@ function switchCurrentPicture(newPicture)
     currentPicture.observe(picProgObserver);
     picProgObserver.refresh(currentPicture);
     updateMiniSelection();
-    
+
 }
 
 function progstepMini1(pic) {
@@ -181,10 +176,11 @@ function progstepMini1(pic) {
 function progstepMini2(pic) {
     var mid = "prog_mini_" + pic.id;
     var minielem = $('#' + mid);
-    minielem.css({'width' : MINIWIDTH,
-                  'height': '40px',
-                      'display' : 'inline-block'
-                     });
+    minielem.css({
+        'width': MINIWIDTH,
+        'height': '40px',
+        'display': 'inline-block'
+    });
     minielem.jqxDraw();
     minielem.data('pic', pic);
     var renderer2 = minielem.jqxDraw('getInstance');
@@ -197,10 +193,11 @@ function createNewMini(pic) {
     var mid = "mini_" + pic.id;
     $("#miniatures").append('<div id="' + mid + '"></div>');
     var minielem = $("#" + mid);
-    minielem.css({'width' : MINIWIDTH,
-                      'height': '80px',
-                      'display' : 'inline-block'
-                     });
+    minielem.css({
+        'width': MINIWIDTH,
+        'height': '80px',
+        'display': 'inline-block'
+    });
     minielem.jqxDraw();
     minielem.data('pic', pic);
     var renderer2 = minielem.jqxDraw('getInstance');
@@ -213,22 +210,25 @@ function createNewMini(pic) {
 }
 
 function saveProgram() {
-    var pgm =  Object();
+    var pgm = Object();
     var pics = Array();
     pgm['nextPictureId'] = nextPictureId;
     pgm['pictures'] = pics;
-    for (var i=0, l=pictures.length; i < l; i++) {
+    for (var i = 0, l = pictures.length; i < l; i++) {
         var p = pictures[i];
         var pix = Array();
-        for (var j=0; j < p.order.length; j++) {
+        for (var j = 0; j < p.order.length; j++) {
             var pid = p.order[j];
             pix.push([pid, p.colors[pid]])
         }
-        pics.push({id: p.id, pixels: pix});
+        pics.push({
+            id: p.id,
+            pixels: pix
+        });
     }
     var steps = Array();
     pgm['steps'] = steps;
-    for (var i=0, l=pgmSource.length; i < l; i++) {
+    for (var i = 0, l = pgmSource.length; i < l; i++) {
         var p = pgmSource[i];
         var sco = {
             pictureId: p.pictureId,
@@ -238,7 +238,7 @@ function saveProgram() {
         steps.push(sco);
     }
     var str = JSON.stringify(pgm);
-    $('#debug').text(str);
+    $('#saved_data').text(str);
 }
 
 function updateTemplateSelection() {
@@ -257,10 +257,11 @@ function createTemplateMini(pic) {
     var mid = "template_mini_" + pic.id;
     $("#templatesPanel").jqxPanel('append', $('<div id="' + mid + '"></div>'));
     var minielem = $("#" + mid);
-    minielem.css({'width' : MINIWIDTH,
-                      'height': '80px',
-                      'display' : 'inline-block'
-                     });
+    minielem.css({
+        'width': MINIWIDTH,
+        'height': '80px',
+        'display': 'inline-block'
+    });
     minielem.jqxDraw();
     minielem.data('pic', pic);
     var renderer2 = minielem.jqxDraw('getInstance');
@@ -277,12 +278,12 @@ function loadTemplates(templates) {
     templatePictures = [];
     currentTemplatePicture = null;
     var spics = templates['pictures'];
-    for (var i=0,l=spics.length; i < l; i++) {
+    for (var i = 0, l = spics.length; i < l; i++) {
         var sp = spics[i];
         var p = new_picture(true);
         p.id = sp['id'];
         var pixels = sp['pixels'];
-        for (var j=0; j < pixels.length; j++) {
+        for (var j = 0; j < pixels.length; j++) {
             p.setPixel(pixels[j][0], pixels[j][1]);
         }
         templatePictures.push(p)
@@ -304,12 +305,12 @@ function addSelectedTemplate() {
 function loadProgram(savedPgm) {
     pictures = [];
     var spics = savedPgm['pictures'];
-    for (var i=0,l=spics.length; i < l; i++) {
+    for (var i = 0, l = spics.length; i < l; i++) {
         var sp = spics[i];
         var p = new_picture(false);
         p.id = sp['id'];
         var pixels = sp['pixels'];
-        for (var j=0; j < pixels.length; j++) {
+        for (var j = 0; j < pixels.length; j++) {
             p.setPixel(pixels[j][0], pixels[j][1]);
         }
         pictures.push(p)
@@ -317,7 +318,7 @@ function loadProgram(savedPgm) {
     nextPictureId = savedPgm['nextPictureId'];
     var steps = savedPgm['steps'];
     pgmSource.splice(0, pgmSource.length);
-    for (var j=0; j < steps.length; j++) {
+    for (var j = 0; j < steps.length; j++) {
         var sstep = steps[j];
         var step = new ProgramStep();
         step.pictureId = sstep['pictureId'];
@@ -325,7 +326,7 @@ function loadProgram(savedPgm) {
         step.action = sstep['action'];
         pgmSource.push(step);
     }
-    
+
     $("#miniatures").html('');
     for (var index = 0; index < pictures.length; index++) {
         createNewMini(pictures[index]);
@@ -368,12 +369,11 @@ function cloneCurrentPicture() {
 
 function deleteCurrentPicture() {
     if (pictures.length == 1) return;
-    
-    for (var i = 0; i < pgmSource.length; ) {
+
+    for (var i = 0; i < pgmSource.length;) {
         if (pgmSource[i].pictureId == currentPicture.id) {
             pgmSource.splice(i, 1);
-        }
-        else {
+        } else {
             i++;
         }
     }
