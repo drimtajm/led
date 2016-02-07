@@ -81,7 +81,7 @@ function parseImageDef(tok) {
             if (tok.nextKind != '}') return null;
             tok.advance();
             console.info(cell + "->" + color);
-            pic.setPixel(cell, 1);
+            pic.setPixel(cell, color);
             if (tok.nextKind != ',' && tok.nextKind != ']') return null;
             break;
         case ',':
